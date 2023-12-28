@@ -14,7 +14,7 @@ export const columns: ColumnDef<Quote>[] = [
     header: ({ column }) => <DataTableColumnHeader column={column} title="★" />,
     cell: ({ row }) => {
       return (
-        <div className="flex space-x-2">
+        <div className="flex w-5 space-x-2">
           {row.getValue("isImportant") == true && (
             <Star
               className="fill-yellow-400 text-yellow-400"
@@ -32,7 +32,9 @@ export const columns: ColumnDef<Quote>[] = [
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Quote" />
     ),
-    cell: ({ row }) => <div className="">{row.getValue("text")}</div>,
+    cell: ({ row }) => (
+      <div className="flex min-w-72 space-x-2">{row.getValue("text")}</div>
+    ),
     enableSorting: false,
     enableHiding: false,
   },
@@ -43,7 +45,7 @@ export const columns: ColumnDef<Quote>[] = [
     ),
     cell: ({ row }) => {
       return (
-        <div className="flex space-x-2">
+        <div className="flex min-w-32 space-x-2">
           <span className="max-w-[200px] font-medium">
             {row.getValue("bookTitle")}
           </span>
@@ -60,7 +62,7 @@ export const columns: ColumnDef<Quote>[] = [
     ),
     cell: ({ row }) => {
       return (
-        <div className="flex space-x-2">
+        <div className="flex min-w-16 space-x-2">
           <span className="max-w-[500px] truncate font-medium">
             {row.getValue("authorNames")}
           </span>

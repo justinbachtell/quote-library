@@ -26,7 +26,7 @@ export function DataTableToolbar<TData>({
           onChange={(event) =>
             table.getColumn("text")?.setFilterValue(event.target.value)
           }
-          className="h-8 w-[150px] lg:w-[150px]"
+          className="h-8 w-1/3 lg:w-[150px]"
         />
         <Input
           type="text"
@@ -37,7 +37,7 @@ export function DataTableToolbar<TData>({
           onChange={(event) =>
             table.getColumn("bookTitle")?.setFilterValue(event.target.value)
           }
-          className="h-8 w-[150px] lg:w-[150px]"
+          className="h-8 w-1/3 lg:w-[150px]"
         />
         <Input
           type="text"
@@ -48,7 +48,7 @@ export function DataTableToolbar<TData>({
           onChange={(event) =>
             table.getColumn("authorNames")?.setFilterValue(event.target.value)
           }
-          className="h-8 w-[150px] lg:w-[150px]"
+          className="h-8 w-1/3 lg:w-[150px]"
         />
         {isFiltered && (
           <Button

@@ -181,8 +181,8 @@ export default function Navbar({ authenticated, user }: NavbarProps) {
 
   if (authenticated === true) {
     return (
-      <NavigationMenu className="mb-2 h-12">
-        <NavigationMenuList>
+      <NavigationMenu className="mb-2">
+        <NavigationMenuList className="flex-wrap">
           <NavigationMenuItem>
             <Link href="/" legacyBehavior passHref>
               <NavigationMenuLink className={navigationMenuTriggerStyle()}>
