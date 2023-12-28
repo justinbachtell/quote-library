@@ -101,8 +101,70 @@ export function CreateAuthor() {
         message:
           "Name must only contain letters, spaces, parentheses, periods, and hyphens.",
       }),
-    birthYear: z.union([yearRegex, z.undefined()]).optional(),
-    deathYear: z.union([yearRegex, z.undefined()]).optional(),
+    birthYear: z
+      .string()
+      .refine(
+        (val) => {
+          const matches = val.match(/^(?:(\d{1,4})(?:\s?(B\.C\.|A\.D\.))?)$/);
+          if (!matches) return false; // Doesn't match the regex
+
+          // Extract year and era from the regex match
+          const [, yearString, era] = matches;
+          if (yearString !== undefined) {
+            const year = parseInt(yearString, 10);
+
+            // If the year is NaN, it's invalid
+            if (isNaN(year)) return false;
+
+            // If the year is less than 0, it's invalid
+            if (year < 0) return false;
+
+            // If it's B.C., it's automatically valid since it's before the current era
+            if (era === "B.C.") return true;
+
+            // If it's A.D. or no era specified, check if the year is <= current year
+            const currentYear = new Date().getFullYear();
+            return year <= currentYear;
+          }
+        },
+        {
+          message:
+            "Invalid year. Must be a number followed by 'B.C.' or 'A.D.', and not greater than the current year if 'A.D.' or no era specified.",
+        },
+      )
+      .optional(),
+    deathYear: z
+      .string()
+      .refine(
+        (val) => {
+          const matches = val.match(/^(?:(\d{1,4})(?:\s?(B\.C\.|A\.D\.))?)$/);
+          if (!matches) return false; // Doesn't match the regex
+
+          // Extract year and era from the regex match
+          const [, yearString, era] = matches;
+          if (yearString !== undefined) {
+            const year = parseInt(yearString, 10);
+
+            // If the year is NaN, it's invalid
+            if (isNaN(year)) return false;
+
+            // If the year is less than 0, it's invalid
+            if (year < 0) return false;
+
+            // If it's B.C., it's automatically valid since it's before the current era
+            if (era === "B.C.") return true;
+
+            // If it's A.D. or no era specified, check if the year is <= current year
+            const currentYear = new Date().getFullYear();
+            return year <= currentYear;
+          }
+        },
+        {
+          message:
+            "Invalid year. Must be a number followed by 'B.C.' or 'A.D.', and not greater than the current year if 'A.D.' or no era specified.",
+        },
+      )
+      .optional(),
     nationality: z
       .string()
       .min(1, {
@@ -231,18 +293,7 @@ export function CreateAuthor() {
                   <FormLabel className="font-bold">Birth Year</FormLabel>
                   <FormMessage className="text-red-600" />
                   <FormControl>
-                    <Input
-                      type="number"
-                      className="rounded"
-                      {...field}
-                      onChange={(e) => {
-                        const year =
-                          e.target.value === ""
-                            ? undefined
-                            : Number(e.target.value);
-                        field.onChange(year);
-                      }}
-                    />
+                    <Input type="number" className="rounded" {...field} />
                   </FormControl>
                   <FormDescription>The author's year of birth.</FormDescription>
                 </FormItem>
@@ -257,18 +308,7 @@ export function CreateAuthor() {
                   <FormLabel className="font-bold">Death Year</FormLabel>
                   <FormMessage className="text-red-600" />
                   <FormControl>
-                    <Input
-                      type="number"
-                      className="rounded"
-                      {...field}
-                      onChange={(e) => {
-                        const year =
-                          e.target.value === ""
-                            ? undefined
-                            : Number(e.target.value);
-                        field.onChange(year);
-                      }}
-                    />
+                    <Input type="number" className="rounded" {...field} />
                   </FormControl>
                   <FormDescription>The author's year of death.</FormDescription>
                 </FormItem>
