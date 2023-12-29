@@ -1,9 +1,7 @@
 "use client";
 
 import { type ColumnDef } from "@tanstack/react-table";
-
 import { Star } from "lucide-react";
-
 import { type Quote } from "./data/schema";
 import { DataTableColumnHeader } from "./data-table-column-header";
 import { DataTableRowActions } from "./data-table-row-actions";
@@ -73,6 +71,23 @@ export const columns: ColumnDef<Quote>[] = [
     enableHiding: true,
   },
   {
+    accessorKey: "quotedAuthor",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Quoted" />
+    ),
+    cell: ({ row }) => {
+      return (
+        <div className="flex space-x-2">
+          <span className="max-w-[500px] truncate font-medium">
+            {row.getValue("quotedAuthor")}
+          </span>
+        </div>
+      );
+    },
+    enableSorting: true,
+    enableHiding: true,
+  },
+  /* {
     accessorKey: "pageNumber",
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Page(s)" />
@@ -88,23 +103,51 @@ export const columns: ColumnDef<Quote>[] = [
     },
     enableSorting: true,
     enableHiding: true,
-  },
-  /* {
-    accessorKey: "quotedBy",
+  }, */
+  {
+    accessorKey: "quoteTopics",
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Quoted By" />
+      <DataTableColumnHeader column={column} title="Topics" />
     ),
     cell: ({ row }) => {
       return (
         <div className="flex space-x-2">
-          <span className="max-w-[500px] truncate font-medium">
-            {row.getValue("quotedBy")}
+          <span className="max-w-[500px] font-medium">
+            {row.getValue("quoteTopics")}
           </span>
         </div>
       );
     },
-    enableSorting: true,
-    enableHiding: true,
+  },
+  {
+    accessorKey: "quoteTypes",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Types" />
+    ),
+    cell: ({ row }) => {
+      return (
+        <div className="flex space-x-2">
+          <span className="max-w-[500px] font-medium">
+            {row.getValue("quoteTypes")}
+          </span>
+        </div>
+      );
+    },
+  },
+  /* {
+    accessorKey: "quoteTags",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Tags" />
+    ),
+    cell: ({ row }) => {
+      return (
+        <div className="flex space-x-2">
+          <span className="max-w-[500px] font-medium">
+            {row.getValue("quoteTags")}
+          </span>
+        </div>
+      );
+    },
   }, */
   {
     id: "actions",

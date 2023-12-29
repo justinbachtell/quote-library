@@ -13,6 +13,9 @@ import {
   quotesToTopics,
   quotesToTags,
   quotesToTypes,
+  tags,
+  topics,
+  types,
 } from "~/server/db/schema";
 import { eq } from "drizzle-orm";
 
@@ -24,10 +27,14 @@ type QuoteWithBookAndAuthors = {
   pageNumber: string | null | undefined;
   context: string | null | undefined;
   quotedBy: number | null | undefined;
+  quotedAuthor: string;
   isImportant: boolean | null;
   isPrivate: boolean | null;
   bookTitle: string;
   authorNames: string;
+  quoteTopics: string[];
+  quoteTags: string[];
+  quoteTypes: string[];
 };
 
 export const quoteRouter = createTRPCRouter({
@@ -200,6 +207,55 @@ export const quoteRouter = createTRPCRouter({
             authorsForBook
               .map((a) => `${a.firstName} ${a.lastName}`)
               .join(", ") || "Unknown Author(s)",
+          quotedAuthor:
+            quote.quotedBy !== null
+              ? await ctx.db
+                  .select({
+                    firstName: authors.firstName,
+                    lastName: authors.lastName,
+                  })
+                  .from(authors)
+                  .innerJoin(quotes, eq(authors.id, quotes.quotedBy))
+                  .where(eq(quotes.quotedBy, quote.quotedBy))
+                  .execute()
+                  .then((a) =>
+                    a[0] ? `${a[0].firstName} ${a[0].lastName}` : "",
+                  )
+              : "Unknown Author(s)",
+          quoteTopics: await ctx.db
+            .select({
+              topicName: topics.name,
+            })
+            .from(quotesToTopics)
+            .innerJoin(topics, eq(quotesToTopics.topicId, topics.id))
+            .where(eq(quotesToTopics.quoteId, quote.id))
+            .execute()
+            .then(
+              (t) =>
+                t.map((t) => t.topicName).join(", ") as unknown as string[],
+            ),
+          quoteTags: await ctx.db
+            .select({
+              tagName: tags.name,
+            })
+            .from(quotesToTags)
+            .innerJoin(tags, eq(quotesToTags.tagId, tags.id))
+            .where(eq(quotesToTags.quoteId, quote.id))
+            .execute()
+            .then(
+              (t) => t.map((t) => t.tagName).join(", ") as unknown as string[],
+            ),
+          quoteTypes: await ctx.db
+            .select({
+              typeName: types.name,
+            })
+            .from(quotesToTypes)
+            .innerJoin(types, eq(quotesToTypes.typeId, types.id))
+            .where(eq(quotesToTypes.quoteId, quote.id))
+            .execute()
+            .then(
+              (t) => t.map((t) => t.typeName).join(", ") as unknown as string[],
+            ),
         });
       }
 

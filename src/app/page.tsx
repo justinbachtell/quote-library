@@ -33,11 +33,7 @@ async function QuoteTable() {
     .map((quote) => ({
       ...quote,
       pageNumber: quote.pageNumber === null ? undefined : quote.pageNumber,
-      quotedBy:
-        quote.quotedBy === null || quote.quotedBy === undefined
-          ? undefined
-          : quote.quotedBy.toString(),
-      isImportant: quote.isImportant ?? undefined,
+      quotedAuthor: quote.quotedAuthor ?? undefined,
       isPrivate: quote.isPrivate ?? undefined,
     }));
 

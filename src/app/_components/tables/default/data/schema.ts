@@ -5,9 +5,11 @@ export const quoteLibrarySchema = z.object({
   bookTitle: z.string(),
   authorNames: z.string(),
   pageNumber: z.string().optional(),
-  quotedBy: z.string().optional(),
-  isImportant: z.boolean().optional(),
+  quotedAuthor: z.string().optional(),
   isPrivate: z.boolean().optional(),
+  quoteTopics: z.array(z.string()).optional(),
+  quoteTags: z.array(z.string()).optional(),
+  quoteTypes: z.array(z.string()).optional(),
 });
 
 export type Quote = z.infer<typeof quoteLibrarySchema>;

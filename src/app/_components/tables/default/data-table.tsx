@@ -77,7 +77,11 @@ export function DataTable<TData, TValue>({
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => {
                   return (
-                    <TableHead key={header.id} colSpan={header.colSpan}>
+                    <TableHead
+                      key={header.id}
+                      colSpan={header.colSpan}
+                      className="first-of-type:hidden"
+                    >
                       {header.isPlaceholder
                         ? null
                         : flexRender(
@@ -96,11 +100,16 @@ export function DataTable<TData, TValue>({
                 <TableRow
                   key={row.id}
                   data-state={row.getIsSelected() && "selected"}
+                  className={
+                    row.getValue("isImportant")
+                      ? "bg-yellow-50 bg-opacity-10"
+                      : undefined
+                  }
                 >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell
                       key={cell.id}
-                      className="w-full first-of-type:w-5"
+                      className="w-full first-of-type:hidden"
                     >
                       {flexRender(
                         cell.column.columnDef.cell,

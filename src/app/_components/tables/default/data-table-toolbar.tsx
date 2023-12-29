@@ -18,7 +18,7 @@ export function DataTableToolbar<TData>({
 
   return (
     <div className="flex items-center justify-between">
-      <div className="flex flex-1 items-center gap-2">
+      <div className="flex flex-1 flex-wrap items-center gap-2">
         <Input
           type="text"
           placeholder="Filter quote..."
@@ -26,7 +26,7 @@ export function DataTableToolbar<TData>({
           onChange={(event) =>
             table.getColumn("text")?.setFilterValue(event.target.value)
           }
-          className="h-8 w-1/3 lg:w-[150px]"
+          className="h-8 w-full max-w-28"
         />
         <Input
           type="text"
@@ -37,7 +37,7 @@ export function DataTableToolbar<TData>({
           onChange={(event) =>
             table.getColumn("bookTitle")?.setFilterValue(event.target.value)
           }
-          className="h-8 w-1/3 lg:w-[150px]"
+          className="h-8 w-full max-w-28"
         />
         <Input
           type="text"
@@ -48,13 +48,44 @@ export function DataTableToolbar<TData>({
           onChange={(event) =>
             table.getColumn("authorNames")?.setFilterValue(event.target.value)
           }
-          className="h-8 w-1/3 lg:w-[150px]"
+          className="h-8 w-full max-w-28"
         />
+        <Input
+          type="text"
+          placeholder="Filter topics..."
+          value={
+            (table.getColumn("quoteTopics")?.getFilterValue() as string) ?? ""
+          }
+          onChange={(event) =>
+            table.getColumn("quoteTopics")?.setFilterValue(event.target.value)
+          }
+          className="h-8 w-full max-w-28"
+        />
+        <Input
+          type="text"
+          placeholder="Filter types..."
+          value={
+            (table.getColumn("quoteTypes")?.getFilterValue() as string) ?? ""
+          }
+          onChange={(event) =>
+            table.getColumn("quoteTypes")?.setFilterValue(event.target.value)
+          }
+          className="h-8 w-full max-w-28"
+        />
+        {/* <Input
+            type="text"
+            placeholder="Filter tags..."
+            value={(table.getColumn("quoteTags")?.getFilterValue() as string) ?? ""}
+            onChange={(event) =>
+                table.getColumn("quoteTags")?.setFilterValue(event.target.value)
+            }
+            className="h-8 w-full max-w-28"
+        /> */}
         {isFiltered && (
           <Button
             variant="ghost"
             onClick={() => table.resetColumnFilters()}
-            className="h-8 px-2 lg:px-3"
+            className="h-8 px-2 md:px-3"
           >
             Reset
             <Cross2Icon className="ml-2 h-4 w-4" />
