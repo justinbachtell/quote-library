@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unnecessary-type-assertion */
 "use client";
 
 import { type ColumnDef } from "@tanstack/react-table";
@@ -114,56 +115,63 @@ export const columns: ColumnDef<Quote>[] = [
   {
     accessorKey: "quoteTopics",
     header: ({ column }) => (
-        <DataTableColumnHeader column={column} title="Topics" />
+      <DataTableColumnHeader column={column} title="Topics" />
     ),
     footer: (props) => props.column.id,
     cell: ({ row }) => {
       const topicList = useFilters().topics;
-      const rowTopics = row.getValue("quoteTopics");
+      const rowTopics = row.getValue("quoteTopics") as string[];
 
       // Check if rowTopics is an array of strings
-      if (!Array.isArray(rowTopics) || !rowTopics.every(topic => typeof topic === 'string')) {
+      if (
+        !Array.isArray(rowTopics) ||
+        !rowTopics.every((topic) => typeof topic === "string")
+      ) {
         return null;
       }
 
       // Filter topics that are in the topicList
-      const validTopics = rowTopics.filter(topic => topicList.includes(topic));
+      const validTopics = rowTopics.filter((topic) =>
+        topicList.includes(topic),
+      );
 
       if (validTopics.length === 0) {
         return null;
       }
 
       return (
-          <div className="flex space-x-2">
-            {validTopics.map(topic => (
-                <span key={topic} className="max-w-[500px] font-medium">
+        <div className="flex space-x-2">
+          {validTopics.map((topic) => (
+            <span key={topic} className="max-w-[500px] font-medium">
               {topic}
             </span>
-            ))}
-          </div>
+          ))}
+        </div>
       );
     },
     filterFn: (row, id, value) => {
       const rowValue = row.getValue(id);
 
       // Ensure rowValue is an array of strings
-      if (!Array.isArray(rowValue) || !rowValue.every(topic => typeof topic === 'string')) {
+      if (
+        !Array.isArray(rowValue) ||
+        !rowValue.every((topic) => typeof topic === "string")
+      ) {
         return false;
       }
 
       // Assuming value is an array of strings, check if any of the row values are included in value
       if (Array.isArray(value)) {
-        return rowValue.some(topic => value.includes(topic));
+        return rowValue.some((topic) => value.includes(topic));
       }
 
       // Assuming value is a string, check if it is included in the row values
-      if (typeof value === 'string') {
+      if (typeof value === "string") {
         return rowValue.includes(value);
       }
 
       return false;
     },
-
   },
   {
     accessorKey: "quoteTypes",
@@ -172,47 +180,52 @@ export const columns: ColumnDef<Quote>[] = [
     ),
     footer: (props) => props.column.id,
     cell: ({ row }) => {
-        const typeList = useFilters().types;
-        const rowTypes = row.getValue("quoteTypes");
+      const typeList = useFilters().types;
+      const rowTypes = row.getValue("quoteTypes") as string[];
 
-        // Check if rowTypes is an array of strings
-        if (!Array.isArray(rowTypes) || !rowTypes.every(type => typeof type === 'string')) {
-            return null;
-        }
+      // Check if rowTypes is an array of strings
+      if (
+        !Array.isArray(rowTypes) ||
+        !rowTypes.every((type) => typeof type === "string")
+      ) {
+        return null;
+      }
 
-        // Filter types that are in the typeList
-        const validTypes = rowTypes.filter(type => typeList.includes(type));
+      // Filter types that are in the typeList
+      const validTypes = rowTypes.filter((type) => typeList.includes(type));
 
-        if (validTypes.length === 0) {
-            return null;
-        }
+      if (validTypes.length === 0) {
+        return null;
+      }
 
-        return (
-            <div className="flex space-x-2">
-                {validTypes.map(type => (
-                    <span key={type} className="max-w-[500px] font-medium">
-                {type}
-                </span>
-                ))}
-            </div>
-        );
-
+      return (
+        <div className="flex space-x-2">
+          {validTypes.map((type) => (
+            <span key={type} className="max-w-[500px] font-medium">
+              {type}
+            </span>
+          ))}
+        </div>
+      );
     },
     filterFn: (row, id, value) => {
       const rowValue = row.getValue(id);
 
       // Ensure rowValue is an array of strings
-      if (!Array.isArray(rowValue) || !rowValue.every(type => typeof type === 'string')) {
+      if (
+        !Array.isArray(rowValue) ||
+        !rowValue.every((type) => typeof type === "string")
+      ) {
         return false;
       }
 
       // Assuming value is an array of strings, check if any of the row values are included in value
       if (Array.isArray(value)) {
-        return rowValue.some(type => value.includes(type));
+        return rowValue.some((type) => value.includes(type));
       }
 
       // Assuming value is a string, check if it is included in the row values
-      if (typeof value === 'string') {
+      if (typeof value === "string") {
         return rowValue.includes(value);
       }
 
@@ -221,51 +234,57 @@ export const columns: ColumnDef<Quote>[] = [
   },
   {
     accessorKey: "quoteTags",
-    header: ({column}) => (
-        <DataTableColumnHeader column={column} title="Tags"/>
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Tags" />
     ),
     footer: (props) => props.column.id,
-    cell: ({row}) => {
+    cell: ({ row }) => {
       const tagList = useFilters().tags;
-      const rowTags = row.getValue("quoteTags");
+      const rowTags = row.getValue("quoteTags") as string[];
 
       // Check if rowTags is an array of strings
-      if (!Array.isArray(rowTags) || !rowTags.every(tag => typeof tag === 'string')) {
+      if (
+        !Array.isArray(rowTags) ||
+        !rowTags.every((tag) => typeof tag === "string")
+      ) {
         return null;
       }
 
       // Filter tags that are in the tagList
-      const validTags = rowTags.filter(tag => tagList.includes(tag));
+      const validTags = rowTags.filter((tag) => tagList.includes(tag));
 
       if (validTags.length === 0) {
         return null;
       }
 
       return (
-          <div className="flex space-x-2">
-            {validTags.map(tag => (
-                <span key={tag} className="max-w-[500px] font-medium">
-                {tag}
-                </span>
-            ))}
-          </div>
+        <div className="flex space-x-2">
+          {validTags.map((tag) => (
+            <span key={tag} className="max-w-[500px] font-medium">
+              {tag}
+            </span>
+          ))}
+        </div>
       );
     },
     filterFn: (row, id, value) => {
       const rowValue = row.getValue(id);
 
       // Ensure rowValue is an array of strings
-      if (!Array.isArray(rowValue) || !rowValue.every(tag => typeof tag === 'string')) {
+      if (
+        !Array.isArray(rowValue) ||
+        !rowValue.every((tag) => typeof tag === "string")
+      ) {
         return false;
       }
 
       // Assuming value is an array of strings, check if any of the row values are included in value
       if (Array.isArray(value)) {
-        return rowValue.some(tag => value.includes(tag));
+        return rowValue.some((tag) => value.includes(tag));
       }
 
       // Assuming value is a string, check if it is included in the row values
-      if (typeof value === 'string') {
+      if (typeof value === "string") {
         return rowValue.includes(value);
       }
 
