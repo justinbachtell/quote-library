@@ -230,10 +230,7 @@ export const quoteRouter = createTRPCRouter({
             .innerJoin(topics, eq(quotesToTopics.topicId, topics.id))
             .where(eq(quotesToTopics.quoteId, quote.id))
             .execute()
-            .then(
-              (t) =>
-                t.map((t) => t.topicName).join(", ") as unknown as string[],
-            ),
+            .then((t) => t.map((topic) => topic.topicName)),
           quoteTags: await ctx.db
             .select({
               tagName: tags.name,
@@ -242,9 +239,7 @@ export const quoteRouter = createTRPCRouter({
             .innerJoin(tags, eq(quotesToTags.tagId, tags.id))
             .where(eq(quotesToTags.quoteId, quote.id))
             .execute()
-            .then(
-              (t) => t.map((t) => t.tagName).join(", ") as unknown as string[],
-            ),
+            .then((t) => t.map((tag) => tag.tagName)),
           quoteTypes: await ctx.db
             .select({
               typeName: types.name,
@@ -253,13 +248,59 @@ export const quoteRouter = createTRPCRouter({
             .innerJoin(types, eq(quotesToTypes.typeId, types.id))
             .where(eq(quotesToTypes.quoteId, quote.id))
             .execute()
-            .then(
-              (t) => t.map((t) => t.typeName).join(", ") as unknown as string[],
-            ),
+            .then((t) => t.map((type) => type.typeName)),
         });
       }
 
       return quotesWithAuthors;
     },
   ),
+
+  // Define a "getTopicById" procedure for fetching a topic by ID (query)
+  getTopicById: publicProcedure.input(z.number()).query(({ ctx, input }) => {
+    return ctx.db.query.quotesToTopics.findMany({
+      where: (quotesToTopics, { eq }) => eq(quotesToTopics.topicId, input),
+    });
+  }),
+
+  // Define a "getTopicByName" procedure for fetching a topic by name (query)
+  getTopicByName: publicProcedure
+    .input(z.string())
+    .query(async ({ ctx, input }) => {
+      return ctx.db.query.topics.findMany({
+        where: (topics, { eq }) => eq(topics.name, input),
+      });
+    }),
+
+  // Define a "getTagById" procedure for fetching a tag by ID (query)
+  getTagById: publicProcedure.input(z.number()).query(({ ctx, input }) => {
+    return ctx.db.query.quotesToTags.findMany({
+      where: (quotesToTags, { eq }) => eq(quotesToTags.tagId, input),
+    });
+  }),
+
+  // Define a "getTagByName" procedure for fetching a tag by name (query)
+  getTagByName: publicProcedure
+    .input(z.string())
+    .query(async ({ ctx, input }) => {
+      return ctx.db.query.tags.findMany({
+        where: (tags, { eq }) => eq(tags.name, input),
+      });
+    }),
+
+  // Define a "getTypeById" procedure for fetching a type by ID (query)
+  getTypeById: publicProcedure.input(z.number()).query(({ ctx, input }) => {
+    return ctx.db.query.quotesToTypes.findMany({
+      where: (quotesToTypes, { eq }) => eq(quotesToTypes.typeId, input),
+    });
+  }),
+
+  // Define a "getTypeByName" procedure for fetching a type by name (query)
+  getTypeByName: publicProcedure
+    .input(z.string())
+    .query(async ({ ctx, input }) => {
+      return ctx.db.query.types.findMany({
+        where: (types, { eq }) => eq(types.name, input),
+      });
+    }),
 });

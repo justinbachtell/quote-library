@@ -24,6 +24,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { cn } from "@/lib/utils";
 
 import { DataTablePagination } from "./data-table-pagination";
 import { DataTableToolbar } from "./data-table-toolbar";
@@ -54,7 +55,6 @@ export function DataTable<TData, TValue>({
       rowSelection,
       columnFilters,
     },
-    enableRowSelection: true,
     onRowSelectionChange: setRowSelection,
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
@@ -65,6 +65,7 @@ export function DataTable<TData, TValue>({
     getSortedRowModel: getSortedRowModel(),
     getFacetedRowModel: getFacetedRowModel(),
     getFacetedUniqueValues: getFacetedUniqueValues(),
+    debugAll: false,
   });
 
   return (
@@ -80,7 +81,13 @@ export function DataTable<TData, TValue>({
                     <TableHead
                       key={header.id}
                       colSpan={header.colSpan}
-                      className="first-of-type:hidden"
+                      className={cn(
+                        "first-of-type:hidden",
+                        /* (header.id === "quoteTopics" ||
+                          header.id === "quoteTypes" ||
+                          header.id === "quoteTags") &&
+                          "hidden", */
+                      )}
                     >
                       {header.isPlaceholder
                         ? null
@@ -109,7 +116,13 @@ export function DataTable<TData, TValue>({
                   {row.getVisibleCells().map((cell) => (
                     <TableCell
                       key={cell.id}
-                      className="w-full first-of-type:hidden"
+                      className={cn(
+                        "w-full first-of-type:hidden",
+                        /* (cell.column.id === "quoteTopics" ||
+                          cell.column.id === "quoteTypes" ||
+                          cell.column.id === "quoteTags") &&
+                          "hidden", */
+                      )}
                     >
                       {flexRender(
                         cell.column.columnDef.cell,

@@ -193,16 +193,20 @@ export default function Navbar({ authenticated, user }: NavbarProps) {
           <NavigationMenuItem>
             <NavigationMenuTrigger>Categories</NavigationMenuTrigger>
             <NavigationMenuContent>
-              <ul className="grid w-[400px] gap-2 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px] ">
+              <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px] lg:grid-cols-3">
                 {categories.map((category) => (
                   <ListItem
                     key={category.title}
-                    title={category.title}
                     href={category.href}
-                    className="flex flex-col flex-wrap  justify-start gap-2"
+                    className="flex flex-col"
                   >
-                    <category.icon />
-                    {category.description}
+                    <span className="mb-1 flex flex-row gap-2 text-sm font-bold leading-none">
+                      <category.icon className="h-4 w-4" />
+                      {category.title}
+                    </span>
+                    <span className="line-clamp-2 text-sm leading-snug text-muted-foreground">
+                      {category.description}
+                    </span>
                   </ListItem>
                 ))}
               </ul>
@@ -215,11 +219,16 @@ export default function Navbar({ authenticated, user }: NavbarProps) {
                 {createForms.map((form) => (
                   <ListItem
                     key={form.title}
-                    title={form.title}
                     href={form.href}
+                    className="flex flex-col"
                   >
-                    <form.icon />
-                    {form.description}
+                    <span className="mb-1 flex flex-row gap-2 text-sm font-bold leading-none">
+                      <form.icon className="h-4 w-4" />
+                      {form.title}
+                    </span>
+                    <span className="line-clamp-2 text-sm leading-snug text-muted-foreground">
+                      {form.description}
+                    </span>
                   </ListItem>
                 ))}
               </ul>
@@ -272,23 +281,28 @@ export default function Navbar({ authenticated, user }: NavbarProps) {
               </NavigationMenuLink>
             </Link>
           </NavigationMenuItem>
-          {/* <NavigationMenuItem>
+          <NavigationMenuItem>
             <NavigationMenuTrigger>Categories</NavigationMenuTrigger>
             <NavigationMenuContent>
-              <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px] ">
+              <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px] lg:grid-cols-3">
                 {categories.map((category) => (
                   <ListItem
                     key={category.title}
-                    title={category.title}
                     href={category.href}
+                    className="flex flex-col"
                   >
-                    <category.icon />
-                    {category.description}
+                    <span className="mb-1 flex flex-row gap-2 text-sm font-bold leading-none">
+                      <category.icon className="h-4 w-4" />
+                      {category.title}
+                    </span>
+                    <span className="line-clamp-2 text-sm leading-snug text-muted-foreground">
+                      {category.description}
+                    </span>
                   </ListItem>
                 ))}
               </ul>
             </NavigationMenuContent>
-          </NavigationMenuItem> */}
+          </NavigationMenuItem>
           <NavigationMenuItem>
             <Link href="https://justinbachtell.com" legacyBehavior passHref>
               <NavigationMenuLink

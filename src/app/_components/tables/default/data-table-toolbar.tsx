@@ -1,11 +1,15 @@
 "use client";
 
+import * as React from "react";
 import { Cross2Icon } from "@radix-ui/react-icons";
 import { type Table } from "@tanstack/react-table";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { DataTableViewOptions } from "./data-table-view-options";
+
+import { DataTableFacetedFilter } from "./data-table-faceted-filter";
+import { useTopics, useTypes, useTags } from "./data/filter-options";
 
 interface DataTableToolbarProps<TData> {
   table: Table<TData>;
@@ -34,9 +38,9 @@ export function DataTableToolbar<TData>({
           value={
             (table.getColumn("bookTitle")?.getFilterValue() as string) ?? ""
           }
-          onChange={(event) =>
-            table.getColumn("bookTitle")?.setFilterValue(event.target.value)
-          }
+          onChange={(event) => {
+            table.getColumn("bookTitle")?.setFilterValue(event.target.value);
+          }}
           className="h-8 w-full max-w-28"
         />
         <Input
@@ -50,42 +54,32 @@ export function DataTableToolbar<TData>({
           }
           className="h-8 w-full max-w-28"
         />
-        <Input
-          type="text"
-          placeholder="Filter topics..."
-          value={
-            (table.getColumn("quoteTopics")?.getFilterValue() as string) ?? ""
-          }
-          onChange={(event) =>
-            table.getColumn("quoteTopics")?.setFilterValue(event.target.value)
-          }
-          className="h-8 w-full max-w-28"
-        />
-        <Input
-          type="text"
-          placeholder="Filter types..."
-          value={
-            (table.getColumn("quoteTypes")?.getFilterValue() as string) ?? ""
-          }
-          onChange={(event) =>
-            table.getColumn("quoteTypes")?.setFilterValue(event.target.value)
-          }
-          className="h-8 w-full max-w-28"
-        />
-        {/* <Input
-            type="text"
-            placeholder="Filter tags..."
-            value={(table.getColumn("quoteTags")?.getFilterValue() as string) ?? ""}
-            onChange={(event) =>
-                table.getColumn("quoteTags")?.setFilterValue(event.target.value)
-            }
-            className="h-8 w-full max-w-28"
-        /> */}
+        {table.getColumn("quoteTopics") && (
+          <DataTableFacetedFilter
+            column={table.getColumn("quoteTopics")}
+            title="Topic"
+            options={useTopics()}
+          />
+        )}
+        {table.getColumn("quoteTypes") && (
+          <DataTableFacetedFilter
+            column={table.getColumn("quoteTypes")}
+            title="Type"
+            options={useTypes()}
+          />
+        )}
+        {table.getColumn("quoteTags") && (
+          <DataTableFacetedFilter
+            column={table.getColumn("quoteTags")}
+            title="Tag"
+            options={useTags()}
+          />
+        )}
         {isFiltered && (
           <Button
             variant="ghost"
             onClick={() => table.resetColumnFilters()}
-            className="h-8 px-2 md:px-3"
+            className="h-8 px-2 lg:px-3"
           >
             Reset
             <Cross2Icon className="ml-2 h-4 w-4" />

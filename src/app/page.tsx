@@ -35,6 +35,9 @@ async function QuoteTable() {
       pageNumber: quote.pageNumber === null ? undefined : quote.pageNumber,
       quotedAuthor: quote.quotedAuthor ?? undefined,
       isPrivate: quote.isPrivate ?? undefined,
+      quoteTopics: quote.quoteTopics ?? undefined,
+      quoteTypes: quote.quoteTypes ?? undefined,
+      quoteTags: quote.quoteTags ?? undefined,
     }));
 
   return (

@@ -115,6 +115,27 @@ export function CreateQuote() {
     },
   });
 
+  const submitAndResetPartial = () => {
+    setText(undefined);
+    setPageNumber(undefined);
+    setQuotedBy(0);
+    setIsImportant(false);
+    setSelectedTopicIds([]);
+    setSelectedTagIds([]);
+    setSelectedTypeIds([]);
+    setResetKey((prev) => prev + 1);
+    form.reset({
+      text: undefined,
+      pageNumber: undefined,
+      quotedBy: 0,
+      isImportant: false,
+      topicIds: [],
+      tagIds: [],
+      typeIds: [],
+    });
+    setResetKey((prev) => prev + 1);
+  };
+
   // Define the schema for quote validation
   const quoteSchema = z.object({
     text: z
@@ -623,6 +644,12 @@ export function CreateQuote() {
           className="border-1 rounded border bg-stone-800 text-white hover:bg-stone-50 hover:text-stone-800"
         >
           Submit
+        </Button>
+        <Button
+          onClick={submitAndResetPartial}
+          className="border-1 rounded border bg-blue-500 text-white hover:bg-blue-600"
+        >
+          Add Another Quote
         </Button>
       </form>
     </Form>
