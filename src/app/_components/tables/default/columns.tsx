@@ -118,7 +118,7 @@ export const columns: ColumnDef<Quote>[] = [
     ),
     footer: (props) => props.column.id,
     cell: ({ row }) => {
-      const topicList = useFilters().topics;
+      // const topicList = useFilters().topics;
       /* console.log("**** TOPICS LIST: ****", topicList);
 
       const topic = topicList?.find(
@@ -140,8 +140,8 @@ export const columns: ColumnDef<Quote>[] = [
         </div>
       );
     },
-    filterFn: (row, id, value) => {
-      return value.includes(row.getValue(id));
+    filterFn: (row, label) => {
+      return label.includes(row.getValue("quoteTopics"));
     },
   },
   {
@@ -151,7 +151,7 @@ export const columns: ColumnDef<Quote>[] = [
     ),
     footer: (props) => props.column.id,
     cell: ({ row }) => {
-      const typesList = useFilters().types;
+      // const typesList = useFilters().types;
       /* console.log("**** TYPES LIST: ****", typesList);
 
       const type = typesList?.find(
@@ -173,8 +173,8 @@ export const columns: ColumnDef<Quote>[] = [
         </div>
       );
     },
-    filterFn: (row, id, value) => {
-      return value.includes(row.getValue(id));
+    filterFn: (row, label) => {
+      return label.includes(row.getValue("quoteTypes"));
     },
   },
   {
@@ -184,7 +184,7 @@ export const columns: ColumnDef<Quote>[] = [
     ),
     footer: (props) => props.column.id,
     cell: ({ row }) => {
-      const tagList = useFilters().tags;
+      // const tagList = useFilters().tags;
 
       return (
         <div className="flex space-x-2">
