@@ -5,45 +5,33 @@ export default function useFilters() {
   const tags = useTags();
   const types = useTypes();
 
-  console.log("topics", topics);
-  console.log("tags", tags);
-  console.log("types", types);
-
   return { topics, tags, types };
 }
 
 export const useTopics = () => {
-  const getTopics = api.topic.getAll.useQuery();
+    const getTopics = api.topic.getAll.useQuery();
 
-  const topics =
-    getTopics.data?.map((topic) => ({
-      label: topic.name,
-      value: topic.name.toLowerCase(),
-    })) ?? [];
+    const topics =
+        getTopics.data?.map((topic) => topic.name) ?? [];
 
-  return topics;
+    return topics;
 };
+
 
 export const useTags = () => {
   const getTags = api.tag.getAll.useQuery();
 
-  const tags =
-    getTags.data?.map((tag) => ({
-      label: tag.name,
-      value: tag.name.toLowerCase(),
-    })) ?? [];
+    const tags =
+        getTags.data?.map((tag) => tag.name) ?? [];
 
-  return tags;
-};
+    return tags;
+}
 
 export const useTypes = () => {
   const getTypes = api.type.getAll.useQuery();
 
   const types =
-    getTypes.data?.map((type) => ({
-      label: type.name,
-      value: type.name.toLowerCase(),
-    })) ?? [];
+        getTypes.data?.map((type) => type.name) ?? [];
 
   return types;
 };

@@ -178,6 +178,7 @@ export const quoteRouter = createTRPCRouter({
           text: quotes.text,
           bookId: quotes.bookId,
           bookTitle: books.title,
+          citation: books.citation,
           pageNumber: quotes.pageNumber,
           context: quotes.context,
           quotedBy: quotes.quotedBy,
@@ -255,6 +256,14 @@ export const quoteRouter = createTRPCRouter({
       return quotesWithAuthors;
     },
   ),
+  // Define a "getQuoteById" procedure for fetching a quote by ID (query)
+  getQuoteById: publicProcedure
+    .input(z.number())
+    .query(async ({ ctx, input }) => {
+      return ctx.db.query.quotes.findMany({
+        where: (quotes, { eq }) => eq(quotes.id, input),
+      });
+    }),
 
   // Define a "getTopicById" procedure for fetching a topic by ID (query)
   getTopicById: publicProcedure.input(z.number()).query(({ ctx, input }) => {

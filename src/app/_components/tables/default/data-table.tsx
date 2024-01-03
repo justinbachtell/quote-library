@@ -83,10 +83,10 @@ export function DataTable<TData, TValue>({
                       colSpan={header.colSpan}
                       className={cn(
                         "first-of-type:hidden",
-                        /* (header.id === "quoteTopics" ||
+                        (header.id === "quoteTopics" ||
                           header.id === "quoteTypes" ||
                           header.id === "quoteTags") &&
-                          "hidden", */
+                          "hidden",
                       )}
                     >
                       {header.isPlaceholder
@@ -118,10 +118,10 @@ export function DataTable<TData, TValue>({
                       key={cell.id}
                       className={cn(
                         "w-full first-of-type:hidden",
-                        /* (cell.column.id === "quoteTopics" ||
+                        (cell.column.id === "quoteTopics" ||
                           cell.column.id === "quoteTypes" ||
                           cell.column.id === "quoteTags") &&
-                          "hidden", */
+                          "hidden",
                       )}
                     >
                       {flexRender(

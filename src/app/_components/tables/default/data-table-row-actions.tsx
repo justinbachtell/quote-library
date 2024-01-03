@@ -1,31 +1,50 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-"use client";
-
+import React, { useCallback } from "react";
 import { DotsHorizontalIcon } from "@radix-ui/react-icons";
-import { type Row } from "@tanstack/react-table";
 
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuRadioGroup,
-  DropdownMenuRadioItem,
-  DropdownMenuSeparator,
   DropdownMenuShortcut,
-  DropdownMenuSub,
-  DropdownMenuSubContent,
-  DropdownMenuSubTrigger,
   DropdownMenuTrigger,
+  DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
+import { type Row } from "@tanstack/react-table";
 
 interface DataTableRowActionsProps<TData> {
   row: Row<TData>;
 }
 
+interface DataRow {
+  id: number;
+  text: string;
+  citation: string;
+}
+
 export function DataTableRowActions<TData>({
   row,
 }: DataTableRowActionsProps<TData>) {
+  const copyToClipboard = (text: string) => {
+    void navigator.clipboard.writeText(text);
+  };
+
+  const handleCopyQuote = useCallback(() => {
+    if (typeof (row.original as DataRow).text === "string") {
+      copyToClipboard((row.original as DataRow).text);
+    }
+  }, [row]);
+
+  const handleCopyCitation = useCallback(() => {
+    if (typeof (row.original as DataRow).citation === "string") {
+      copyToClipboard((row.original as DataRow).citation);
+    }
+  }, [row]);
+
+  const handleViewDetails = useCallback(() => {
+    <></>;
+  }, [row]);
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -37,20 +56,18 @@ export function DataTableRowActions<TData>({
           <span className="sr-only">Open menu</span>
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-[200px]">
-        <DropdownMenuItem>
-          Copy quote <DropdownMenuShortcut>⌘c</DropdownMenuShortcut>
+      <DropdownMenuContent>
+        <DropdownMenuItem onSelect={handleCopyQuote}>
+          Copy quote
         </DropdownMenuItem>
-        <DropdownMenuItem>
-          Copy citation <DropdownMenuShortcut>⌘⌥c</DropdownMenuShortcut>
+        <DropdownMenuItem onSelect={handleCopyCitation}>
+          Copy citation
         </DropdownMenuItem>
         <DropdownMenuSeparator />
-        <DropdownMenuItem>View quote details</DropdownMenuItem>
-        <DropdownMenuSeparator />
-        <DropdownMenuItem>
-          Delete
-          <DropdownMenuShortcut>⌘⌫</DropdownMenuShortcut>
+        <DropdownMenuItem onSelect={handleViewDetails}>
+          View quote details
         </DropdownMenuItem>
+        <DropdownMenuSeparator />
       </DropdownMenuContent>
     </DropdownMenu>
   );
