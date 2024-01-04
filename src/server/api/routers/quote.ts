@@ -47,7 +47,6 @@ export const quoteRouter = createTRPCRouter({
         quotedBy: z.number().optional(),
         isImportant: z.boolean(),
         isPrivate: z.boolean(),
-        authorIds: z.array(z.number()),
         topicIds: z.array(z.number()).optional(),
         tagIds: z.array(z.number()).optional(),
         typeIds: z.array(z.number()).optional(),
