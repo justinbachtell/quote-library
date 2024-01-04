@@ -217,7 +217,7 @@ export default function EditQuote({ quoteId }: EditQuoteProps) {
   // Function to handle deletion of the quote
   const handleDelete = () => {
     if (window.confirm("Are you sure you want to delete this quote?")) {
-      deleteQuote.mutate({ id });
+      deleteQuote.mutate(id);
     }
   };
 
