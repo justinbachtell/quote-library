@@ -34,6 +34,12 @@ type QuoteWithBookAndAuthors = {
   quoteGenres: string[];
 };
 
+type AssociationTable = {
+  id: number;
+  quoteId: number;
+  relatedId: number;
+};
+
 export const quoteRouter = createTRPCRouter({
   // Define a "create" procedure for creating a quote (mutation)
   create: protectedProcedure
@@ -146,7 +152,6 @@ export const quoteRouter = createTRPCRouter({
   // Define a "update" procedure for updating a quote (mutation)
   update: protectedProcedure
     .input(
-      // Define input validation schema for updating quotes
       z.object({
         id: z.number(),
         text: z.string(),
@@ -163,7 +168,6 @@ export const quoteRouter = createTRPCRouter({
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      // Use a database transaction to ensure data consistency
       return ctx.db.transaction(async (tx) => {
         // Check if the user is logged in
         if (!ctx.session?.user.id) {
@@ -186,77 +190,145 @@ export const quoteRouter = createTRPCRouter({
           .where(eq(quotes.id, input.id))
           .execute();
 
-        // Update existing associations for the quote
-        await tx
-          .delete(quotesToAuthors)
-          .where(eq(quotesToAuthors.quoteId, input.id))
-          .execute();
-        await tx
-          .delete(quotesToTopics)
-          .where(eq(quotesToTopics.quoteId, input.id))
-          .execute();
-        await tx
-          .delete(quotesToTags)
-          .where(eq(quotesToTags.quoteId, input.id))
-          .execute();
-        await tx
-          .delete(quotesToTypes)
-          .where(eq(quotesToTypes.quoteId, input.id))
-          .execute();
+        // Update associations with authors
+        if (input.authorIds !== undefined) {
+          const existingAuthorAssociations = await tx
+            .select({
+              id: quotesToAuthors.quoteId,
+              authorId: quotesToAuthors.authorId,
+            })
+            .from(quotesToAuthors)
+            .where(eq(quotesToAuthors.quoteId, input.id))
+            .execute();
 
-        // Insert new associations with authors
-        if (input.authorIds) {
-          for (const authorId of input.authorIds) {
-            await tx
-              .insert(quotesToAuthors)
-              .values({
-                quoteId: input.id,
-                authorId: authorId,
-              })
-              .execute();
+          const existingAuthorIds = existingAuthorAssociations.map(
+            (assoc) => assoc.authorId,
+          );
+
+          // Delete author associations not in the input
+          for (const existingAssoc of existingAuthorAssociations) {
+            if (!input.authorIds.includes(existingAssoc.authorId)) {
+              await tx
+                .delete(quotesToAuthors)
+                .where(eq(quotesToAuthors.quoteId, existingAssoc.id))
+                .execute();
+            }
+          }
+
+          // Add new author associations
+          for (const newAuthorId of input.authorIds) {
+            if (!existingAuthorIds.includes(newAuthorId)) {
+              await tx
+                .insert(quotesToAuthors)
+                .values({ quoteId: input.id, authorId: newAuthorId })
+                .execute();
+            }
           }
         }
 
-        // Insert new associations with topics
-        if (input.topicIds) {
-          for (const topicId of input.topicIds) {
-            await tx
-              .insert(quotesToTopics)
-              .values({
-                quoteId: input.id,
-                topicId: topicId,
-              })
-              .execute();
+        // Update associations with topics
+        if (input.topicIds !== undefined) {
+          const existingTopicAssociations = await tx
+            .select({
+              id: quotesToTopics.quoteId,
+              topicId: quotesToTopics.topicId,
+            })
+            .from(quotesToTopics)
+            .where(eq(quotesToTopics.quoteId, input.id))
+            .execute();
+
+          const existingTopicIds = existingTopicAssociations.map(
+            (assoc) => assoc.topicId,
+          );
+
+          // Delete topic associations not in the input
+          for (const existingAssoc of existingTopicAssociations) {
+            if (!input.topicIds.includes(existingAssoc.topicId)) {
+              await tx
+                .delete(quotesToTopics)
+                .where(eq(quotesToTopics.quoteId, existingAssoc.id))
+                .execute();
+            }
+          }
+
+          // Add new topic associations
+          for (const newTopicId of input.topicIds) {
+            if (!existingTopicIds.includes(newTopicId)) {
+              await tx
+                .insert(quotesToTopics)
+                .values({ quoteId: input.id, topicId: newTopicId })
+                .execute();
+            }
           }
         }
 
-        // Insert new associations with tags
-        if (input.tagIds) {
-          for (const tagId of input.tagIds) {
-            await tx
-              .insert(quotesToTags)
-              .values({
-                quoteId: input.id,
-                tagId: tagId,
-              })
-              .execute();
+        // Update associations with tags
+        if (input.tagIds !== undefined) {
+          const existingTagAssociations = await tx
+            .select({ id: quotesToTags.quoteId, tagId: quotesToTags.tagId })
+            .from(quotesToTags)
+            .where(eq(quotesToTags.quoteId, input.id))
+            .execute();
+
+          const existingTagIds = existingTagAssociations.map(
+            (assoc) => assoc.tagId,
+          );
+
+          // Delete tag associations not in the input
+          for (const existingAssoc of existingTagAssociations) {
+            if (!input.tagIds.includes(existingAssoc.tagId)) {
+              await tx
+                .delete(quotesToTags)
+                .where(eq(quotesToTags.quoteId, existingAssoc.id))
+                .execute();
+            }
+          }
+
+          // Add new tag associations
+          for (const newTagId of input.tagIds) {
+            if (!existingTagIds.includes(newTagId)) {
+              await tx
+                .insert(quotesToTags)
+                .values({ quoteId: input.id, tagId: newTagId })
+                .execute();
+            }
           }
         }
 
-        // Insert new associations with types
-        if (input.typeIds) {
-          for (const typeId of input.typeIds) {
-            await tx
-              .insert(quotesToTypes)
-              .values({
-                quoteId: input.id,
-                typeId: typeId,
-              })
-              .execute();
+        // Update associations with types
+        if (input.typeIds !== undefined) {
+          const existingTypeAssociations = await tx
+            .select({ id: quotesToTypes.quoteId, typeId: quotesToTypes.typeId })
+            .from(quotesToTypes)
+            .where(eq(quotesToTypes.quoteId, input.id))
+            .execute();
+
+          const existingTypeIds = existingTypeAssociations.map(
+            (assoc) => assoc.typeId,
+          );
+
+          // Delete type associations not in the input
+          for (const existingAssoc of existingTypeAssociations) {
+            if (!input.typeIds.includes(existingAssoc.typeId)) {
+              await tx
+                .delete(quotesToTypes)
+                .where(eq(quotesToTypes.quoteId, existingAssoc.id))
+                .execute();
+            }
+          }
+
+          // Add new type associations
+          for (const newTypeId of input.typeIds) {
+            if (!existingTypeIds.includes(newTypeId)) {
+              await tx
+                .insert(quotesToTypes)
+                .values({ quoteId: input.id, typeId: newTypeId })
+                .execute();
+            }
           }
         }
 
-        return input.id;
+        return;
       });
     }),
 
