@@ -3,7 +3,7 @@ import { getServerAuthSession } from "~/server/auth";
 import { api } from "~/trpc/server";
 import { DataTable } from "./_components/tables/default/data-table";
 import { columns } from "./_components/tables/default/columns";
-import { Icons, type Icon } from "~/app/_components/icons";
+import { Icons } from "~/app/_components/icons";
 
 export default async function Home() {
   return (

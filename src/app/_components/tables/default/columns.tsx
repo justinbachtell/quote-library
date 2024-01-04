@@ -35,7 +35,9 @@ export const columns: ColumnDef<Quote>[] = [
     ),
     footer: (props) => props.column.id,
     cell: ({ row }) => (
-      <div className="flex min-w-72 space-x-2">{row.getValue("text")}</div>
+      <div className="flex min-w-72 gap-3 space-x-2">
+        {row.getValue("text")}
+      </div>
     ),
     enableSorting: false,
     enableHiding: false,
@@ -62,24 +64,21 @@ export const columns: ColumnDef<Quote>[] = [
 
       return (
         <div className="flex space-x-2">
-          <span className="max-w-[500px] truncate font-medium">{rowBook}</span>
+          <span className="flex min-w-44 max-w-72 gap-3 font-medium">
+            {rowBook}
+          </span>
         </div>
       );
     },
-    filterFn: (row, id, value) => {
+    filterFn: (row, id, filterValue) => {
+      // Assuming row values are strings or can be converted to strings
       const rowValue = row.getValue(id);
+      const value = rowValue ? String(rowValue).toLowerCase() : "";
 
-      // Ensure rowValue is a string
-      if (typeof rowValue !== "string") {
-        return false;
-      }
+      // Assuming filter value is a string
+      const filter = filterValue ? String(filterValue).toLowerCase() : "";
 
-      // Assuming value is a string, check if it is included in the row value
-      if (typeof value === "string") {
-        return rowValue.includes(value);
-      }
-
-      return false;
+      return value.includes(filter);
     },
     enableSorting: true,
     enableHiding: true,
@@ -114,7 +113,10 @@ export const columns: ColumnDef<Quote>[] = [
       return (
         <div className="flex space-x-2">
           {validAuthors.map((author) => (
-            <span key={author} className="max-w-[500px] font-medium">
+            <span
+              key={author}
+              className="flex min-w-32 max-w-44 gap-3 font-medium"
+            >
               {author}
             </span>
           ))}
@@ -169,26 +171,21 @@ export const columns: ColumnDef<Quote>[] = [
 
       return (
         <div className="flex space-x-2">
-          <span className="max-w-[500px] truncate font-medium">
+          <span className="flex min-w-32 max-w-44 gap-3 font-medium">
             {rowQuoted}
           </span>
         </div>
       );
     },
-    filterFn: (row, id, value) => {
+    filterFn: (row, id, filterValue) => {
+      // Assuming row values are strings or can be converted to strings
       const rowValue = row.getValue(id);
+      const value = rowValue ? String(rowValue).toLowerCase() : "";
 
-      // Ensure rowValue is a string
-      if (typeof rowValue !== "string") {
-        return false;
-      }
+      // Assuming filter value is a string
+      const filter = filterValue ? String(filterValue).toLowerCase() : "";
 
-      // Assuming value is a string, check if it is included in the row value
-      if (typeof value === "string") {
-        return rowValue.includes(value);
-      }
-
-      return false;
+      return value.includes(filter);
     },
     enableSorting: true,
     enableHiding: true,
@@ -202,7 +199,7 @@ export const columns: ColumnDef<Quote>[] = [
     cell: ({ row }) => {
       return (
         <div className="flex space-x-2">
-          <span className="max-w-[500px] truncate font-medium">
+          <span className="max-w-32 gap-3 font-medium">
             {row.getValue("pageNumber")}
           </span>
         </div>

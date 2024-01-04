@@ -23,7 +23,7 @@ import { Separator } from "@/components/ui/separator";
 interface DataTableFacetedFilterProps<TData, TValue> {
   column?: Column<TData, TValue>;
   title?: string;
-  options: string[]; // Updated type
+  options: string[];
 }
 
 export function DataTableFacetedFilter<TData, TValue>({

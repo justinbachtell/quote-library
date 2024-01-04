@@ -301,6 +301,7 @@ export const quoteRouter = createTRPCRouter({
           citation: books.citation,
           pageNumber: quotes.pageNumber,
           context: quotes.context,
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
           quotedBy: quotes.quotedBy,
           isImportant: quotes.isImportant,
           isPrivate: quotes.isPrivate,
@@ -401,6 +402,7 @@ export const quoteRouter = createTRPCRouter({
           citation: books.citation,
           pageNumber: quotes.pageNumber,
           context: quotes.context,
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
           quotedBy: quotes.quotedBy,
           isImportant: quotes.isImportant,
           isPrivate: quotes.isPrivate,
