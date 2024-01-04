@@ -22,7 +22,7 @@ export const yearRegex = z
     message: `Year must be between 1 and ${currentYear}.`,
   });
 
-  export const stringRegex = /^[A-Za-z0-9.():;\-\s,'"]+$/;
+  export const stringRegex = /^([A-Za-z0-9.():;\-\s,'"]+)?$/;
   export const numberRegex = /^[0-9]*$/;
   export const alphanumericRegex = /^[A-Za-z0-9\u002D\u2013\u2014]*$/;
   export const urlRegex =
