@@ -200,11 +200,11 @@ export default function EditQuote({ quoteId }: EditQuoteProps) {
       quotedBy: quoteData?.[0]?.quotedBy ?? 0,
       isImportant: quoteData?.[0]?.isImportant ?? false,
       isPrivate: quoteData?.[0]?.isPrivate ?? false,
-      quoteAuthors: quoteData?.[0]?.quoteAuthors ?? [],
+      /* quoteAuthors: quoteData?.[0]?.quoteAuthors ?? [],
       quoteTopics: quoteData?.[0]?.quoteTopics ?? [],
       quoteTags: quoteData?.[0]?.quoteTags ?? [],
       quoteTypes: quoteData?.[0]?.quoteTypes ?? [],
-      quoteGenres: quoteData?.[0]?.quoteGenres ?? [],
+      quoteGenres: quoteData?.[0]?.quoteGenres ?? [], */
     },
   });
 
@@ -232,8 +232,8 @@ export default function EditQuote({ quoteId }: EditQuoteProps) {
     const newSelection = selectedNames.includes(name)
       ? selectedNames.filter((existingName) => existingName !== name)
       : [...selectedNames, id];
-    setSelectedNames(newSelection);
-    form.setValue(fieldName, newSelection, { shouldValidate: true });
+    // setSelectedNames(newSelection);
+    // form.setValue(fieldName, newSelection, { shouldValidate: true });
   };
 
   useEffect(() => {
@@ -246,11 +246,11 @@ export default function EditQuote({ quoteId }: EditQuoteProps) {
         quotedBy: quoteData[0].quotedBy ?? 0,
         isImportant: quoteData[0].isImportant ?? false,
         isPrivate: quoteData[0].isPrivate ?? false,
-        quoteAuthors: quoteData[0].quoteAuthors,
+        /* quoteAuthors: quoteData[0].quoteAuthors,
         quoteTopics: quoteData[0].quoteTopics,
         quoteTags: quoteData[0].quoteTags,
         quoteTypes: quoteData[0].quoteTypes,
-        quoteGenres: quoteData[0].quoteGenres,
+        quoteGenres: quoteData[0].quoteGenres, */
       });
     }
   }, [quoteData, form]);
