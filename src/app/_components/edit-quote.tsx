@@ -197,6 +197,30 @@ export default function EditQuote({ quoteId }: EditQuoteProps) {
     },
   });
 
+  // Delete mutation
+  const deleteQuote = api.quote.delete.useMutation({
+    onSuccess: () => {
+      toast({
+        title: "Quote deleted!",
+        description: "Your quote has been deleted.",
+      });
+      router.push(`/quotes`);
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: error.message,
+      });
+    },
+  });
+
+  // Function to handle deletion of the quote
+  const handleDelete = () => {
+    if (window.confirm("Are you sure you want to delete this quote?")) {
+      deleteQuote.mutate({ id });
+    }
+  };
+
   // Initialize the form with the fetched quote data
   const form = useForm<z.infer<typeof quoteSchema>>({
     resolver: zodResolver(quoteSchema),
@@ -299,14 +323,22 @@ export default function EditQuote({ quoteId }: EditQuoteProps) {
 
   return (
     <div className="flex w-full flex-col gap-4">
-      <Button
-        className="border-1 mx-auto min-w-16 max-w-24 justify-center rounded border bg-stone-800 text-white hover:bg-stone-50 hover:text-stone-800"
-        onClick={() => {
-          setEditMode(!editMode);
-        }}
-      >
-        Edit Quote
-      </Button>
+      <div className="flex flex-row gap-4">
+        <Button
+          className="border-1 mx-auto min-w-16 max-w-24 justify-center rounded border bg-stone-800 text-white hover:bg-stone-50 hover:text-stone-800"
+          onClick={() => {
+            setEditMode(!editMode);
+          }}
+        >
+          {editMode ? "Cancel" : "Edit Quote"}
+        </Button>
+        <Button
+          className="border-1 mx-auto min-w-16 max-w-24 justify-center rounded border bg-red-600 text-white hover:bg-red-800"
+          onClick={handleDelete}
+        >
+          Delete Quote
+        </Button>
+      </div>
       {editMode && (
         <Form {...form}>
           <form
@@ -430,11 +462,9 @@ export default function EditQuote({ quoteId }: EditQuoteProps) {
                     >
                       <SelectTrigger className="rounded">
                         <SelectValue placeholder="Select a book">
-                          {getDisplayValues(
-                            bookId,
-                            getBooks.data ?? [],
-                            ["title"],
-                          )}
+                          {getDisplayValues(bookId, getBooks.data ?? [], [
+                            "title",
+                          ])}
                         </SelectValue>
                       </SelectTrigger>
                       <SelectContent>

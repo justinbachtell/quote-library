@@ -171,7 +171,7 @@ export const quoteRouter = createTRPCRouter({
         }
 
         // Update the quote in the database
-        const quoteUpdate = await tx
+        await tx
           .update(quotes)
           .set({
             userId: ctx.session.user.id,
@@ -186,84 +186,119 @@ export const quoteRouter = createTRPCRouter({
           .where(eq(quotes.id, input.id))
           .execute();
 
-        const quoteId = Number(quoteUpdate.insertId);
-        if (isNaN(quoteId)) {
-          throw new Error("Failed to update the quote");
-        }
+        // Update existing associations for the quote
+        await tx
+          .delete(quotesToAuthors)
+          .where(eq(quotesToAuthors.quoteId, input.id))
+          .execute();
+        await tx
+          .delete(quotesToTopics)
+          .where(eq(quotesToTopics.quoteId, input.id))
+          .execute();
+        await tx
+          .delete(quotesToTags)
+          .where(eq(quotesToTags.quoteId, input.id))
+          .execute();
+        await tx
+          .delete(quotesToTypes)
+          .where(eq(quotesToTypes.quoteId, input.id))
+          .execute();
 
-        // Automatically associate authors with the quote based on the bookId
-        if (input.bookId) {
-          const authorsForBook = await tx
-            .select({ authorId: booksToAuthors.authorId })
-            .from(booksToAuthors)
-            .where(eq(booksToAuthors.bookId, input.bookId));
-
-          if (authorsForBook.length > 0 && authorsForBook[0] !== undefined) {
-            for (const author of authorsForBook) {
-              await tx
-                .insert(quotesToAuthors)
-                .values({
-                  quoteId: quoteId,
-                  authorId: author.authorId,
-                })
-                .execute();
-            }
-          }
-        }
-
-        // Insert associations with authors
+        // Insert new associations with authors
         if (input.authorIds) {
           for (const authorId of input.authorIds) {
             await tx
               .insert(quotesToAuthors)
               .values({
-                quoteId: quoteId,
+                quoteId: input.id,
                 authorId: authorId,
               })
               .execute();
           }
         }
 
-        // Insert associations with topics
+        // Insert new associations with topics
         if (input.topicIds) {
           for (const topicId of input.topicIds) {
             await tx
               .insert(quotesToTopics)
               .values({
-                quoteId: quoteId,
+                quoteId: input.id,
                 topicId: topicId,
               })
               .execute();
           }
         }
 
-        // Insert associations with tags
+        // Insert new associations with tags
         if (input.tagIds) {
           for (const tagId of input.tagIds) {
             await tx
               .insert(quotesToTags)
               .values({
-                quoteId: quoteId,
+                quoteId: input.id,
                 tagId: tagId,
               })
               .execute();
           }
         }
 
-        // Insert associations with types
+        // Insert new associations with types
         if (input.typeIds) {
           for (const typeId of input.typeIds) {
             await tx
               .insert(quotesToTypes)
               .values({
-                quoteId: quoteId,
+                quoteId: input.id,
                 typeId: typeId,
               })
               .execute();
           }
         }
 
-        return quoteId;
+        return input.id;
+      });
+    }),
+
+  // Define a "delete" procedure for deleting a quote (mutation)
+  delete: protectedProcedure
+    .input(z.number()) // expects the ID of the quote to delete
+    .mutation(async ({ ctx, input }) => {
+      return ctx.db.transaction(async (tx) => {
+        if (!ctx.session?.user.id) {
+          throw new Error("You must be logged in to delete a quote.");
+        }
+
+        // Delete associations in related tables first to maintain referential integrity
+        await tx
+          .delete(quotesToAuthors)
+          .where(eq(quotesToAuthors.quoteId, input))
+          .execute();
+        await tx
+          .delete(quotesToTopics)
+          .where(eq(quotesToTopics.quoteId, input))
+          .execute();
+        await tx
+          .delete(quotesToTags)
+          .where(eq(quotesToTags.quoteId, input))
+          .execute();
+        await tx
+          .delete(quotesToTypes)
+          .where(eq(quotesToTypes.quoteId, input))
+          .execute();
+
+        // Now delete the quote itself
+        const deletion = await tx
+          .delete(quotes)
+          .where(eq(quotes.id, input))
+          .execute();
+
+        // Check if the deletion was successful by ensuring deletion is not null
+        if (!deletion) {
+          throw new Error(`Failed to delete the quote with ID ${input}`);
+        }
+
+        return `Quote with ID ${input} was successfully deleted.`;
       });
     }),
 
