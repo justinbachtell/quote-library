@@ -85,7 +85,8 @@ export function DataTable<TData, TValue>({
                         "first-of-type:hidden",
                         (header.id === "quoteTopics" ||
                           header.id === "quoteTypes" ||
-                          header.id === "quoteTags") &&
+                          header.id === "quoteTags" ||
+                          header.id === "quoteGenres") &&
                           "hidden",
                       )}
                     >
@@ -120,7 +121,8 @@ export function DataTable<TData, TValue>({
                         "w-full first-of-type:hidden",
                         (cell.column.id === "quoteTopics" ||
                           cell.column.id === "quoteTypes" ||
-                          cell.column.id === "quoteTags") &&
+                          cell.column.id === "quoteTags" ||
+                          cell.column.id === "quoteGenres") &&
                           "hidden",
                       )}
                     >

@@ -1,6 +1,7 @@
+"use client";
 import React, { useCallback } from "react";
 import { DotsHorizontalIcon } from "@radix-ui/react-icons";
-
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -22,9 +23,17 @@ interface DataRow {
   citation: string;
 }
 
+interface IDataWithId {
+  id: number;
+}
+
+type TData = DataRow & IDataWithId;
+
 export function DataTableRowActions<TData>({
   row,
 }: DataTableRowActionsProps<TData>) {
+  const router = useRouter();
+
   const copyToClipboard = (text: string) => {
     void navigator.clipboard.writeText(text);
   };
@@ -42,7 +51,7 @@ export function DataTableRowActions<TData>({
   }, [row]);
 
   const handleViewDetails = useCallback(() => {
-    <></>;
+    router.push(`/quotes/${(row.original as DataRow).id}`);
   }, [row]);
 
   return (

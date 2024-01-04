@@ -39,8 +39,12 @@ export function DataTableViewOptions<TData>({
           .getAllColumns()
           .filter(
             (column) =>
-              typeof column.accessorFn !== "undefined" && column.getCanHide() &&
-              column.id !== "quoteTopics" && column.id !== "quoteTags" && column.id !== "quoteTypes"
+              typeof column.accessorFn !== "undefined" &&
+              column.getCanHide() &&
+              column.id !== "quoteTopics" &&
+              column.id !== "quoteTags" &&
+              column.id !== "quoteTypes" &&
+              column.id !== "quoteGenres",
           )
           .map((column) => {
             return (

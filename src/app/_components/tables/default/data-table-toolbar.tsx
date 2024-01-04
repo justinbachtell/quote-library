@@ -9,7 +9,15 @@ import { Input } from "@/components/ui/input";
 import { DataTableViewOptions } from "./data-table-view-options";
 
 import { DataTableFacetedFilter } from "./data-table-faceted-filter";
-import { useTopics, useTypes, useTags } from "./data/filter-options";
+import {
+  useTopics,
+  useTypes,
+  useTags,
+  useGenres,
+  useBooks,
+  useAuthors,
+  useQuoted,
+} from "./data/filter-options";
 
 interface DataTableToolbarProps<TData> {
   table: Table<TData>;
@@ -32,28 +40,27 @@ export function DataTableToolbar<TData>({
           }
           className="h-8 w-full max-w-28"
         />
-        <Input
-          type="text"
-          placeholder="Filter book..."
-          value={
-            (table.getColumn("bookTitle")?.getFilterValue() as string) ?? ""
-          }
-          onChange={(event) => {
-            table.getColumn("bookTitle")?.setFilterValue(event.target.value);
-          }}
-          className="h-8 w-full max-w-28"
-        />
-        <Input
-          type="text"
-          placeholder="Filter author..."
-          value={
-            (table.getColumn("authorNames")?.getFilterValue() as string) ?? ""
-          }
-          onChange={(event) =>
-            table.getColumn("authorNames")?.setFilterValue(event.target.value)
-          }
-          className="h-8 w-full max-w-28"
-        />
+        {table.getColumn("bookTitle") && (
+          <DataTableFacetedFilter
+            column={table.getColumn("bookTitle")}
+            title="Book"
+            options={useBooks()}
+          />
+        )}
+        {table.getColumn("quoteAuthors") && (
+          <DataTableFacetedFilter
+            column={table.getColumn("quoteAuthors")}
+            title="Author"
+            options={useAuthors()}
+          />
+        )}
+        {table.getColumn("quotedAuthor") && (
+          <DataTableFacetedFilter
+            column={table.getColumn("quotedAuthor")}
+            title="Quoted Author"
+            options={useQuoted()}
+          />
+        )}
         {table.getColumn("quoteTopics") && (
           <DataTableFacetedFilter
             column={table.getColumn("quoteTopics")}
@@ -73,6 +80,13 @@ export function DataTableToolbar<TData>({
             column={table.getColumn("quoteTags")}
             title="Tag"
             options={useTags()}
+          />
+        )}
+        {table.getColumn("quoteGenres") && (
+          <DataTableFacetedFilter
+            column={table.getColumn("quoteGenres")}
+            title="Genre"
+            options={useGenres()}
           />
         )}
         {isFiltered && (

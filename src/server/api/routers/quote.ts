@@ -7,15 +7,11 @@ import {
 import {
   quotes,
   books,
-  authors,
   booksToAuthors,
   quotesToAuthors,
   quotesToTopics,
   quotesToTags,
   quotesToTypes,
-  tags,
-  topics,
-  types,
 } from "~/server/db/schema";
 import { eq } from "drizzle-orm";
 
@@ -24,17 +20,18 @@ type QuoteWithBookAndAuthors = {
   userId: string;
   text: string;
   bookId: number;
+  citation: string | null | undefined;
   pageNumber: string | null | undefined;
   context: string | null | undefined;
   quotedBy: number | null | undefined;
-  quotedAuthor: string;
   isImportant: boolean | null;
   isPrivate: boolean | null;
   bookTitle: string;
-  authorNames: string;
+  quoteAuthors: string[];
   quoteTopics: string[];
   quoteTags: string[];
   quoteTypes: string[];
+  quoteGenres: string[];
 };
 
 export const quoteRouter = createTRPCRouter({
@@ -50,7 +47,7 @@ export const quoteRouter = createTRPCRouter({
         quotedBy: z.number().optional(),
         isImportant: z.boolean(),
         isPrivate: z.boolean(),
-        authorIds: z.array(z.number()).optional(),
+        authorIds: z.array(z.number()),
         topicIds: z.array(z.number()).optional(),
         tagIds: z.array(z.number()).optional(),
         typeIds: z.array(z.number()).optional(),
@@ -147,6 +144,130 @@ export const quoteRouter = createTRPCRouter({
       });
     }),
 
+  // Define a "update" procedure for updating a quote (mutation)
+  update: protectedProcedure
+    .input(
+      // Define input validation schema for updating quotes
+      z.object({
+        id: z.number(),
+        text: z.string(),
+        bookId: z.number(),
+        context: z.string().optional(),
+        pageNumber: z.string().optional(),
+        quotedBy: z.number().optional(),
+        isImportant: z.boolean(),
+        isPrivate: z.boolean(),
+        authorIds: z.array(z.number()).optional(),
+        topicIds: z.array(z.number()).optional(),
+        tagIds: z.array(z.number()).optional(),
+        typeIds: z.array(z.number()).optional(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      // Use a database transaction to ensure data consistency
+      return ctx.db.transaction(async (tx) => {
+        // Check if the user is logged in
+        if (!ctx.session?.user.id) {
+          throw new Error("You must be logged in to update a quote.");
+        }
+
+        // Update the quote in the database
+        const quoteUpdate = await tx
+          .update(quotes)
+          .set({
+            userId: ctx.session.user.id,
+            text: input.text,
+            bookId: input.bookId,
+            context: input.context,
+            pageNumber: input.pageNumber,
+            quotedBy: input.quotedBy,
+            isImportant: input.isImportant,
+            isPrivate: input.isPrivate,
+          })
+          .where(eq(quotes.id, input.id))
+          .execute();
+
+        const quoteId = Number(quoteUpdate.insertId);
+        if (isNaN(quoteId)) {
+          throw new Error("Failed to update the quote");
+        }
+
+        // Automatically associate authors with the quote based on the bookId
+        if (input.bookId) {
+          const authorsForBook = await tx
+            .select({ authorId: booksToAuthors.authorId })
+            .from(booksToAuthors)
+            .where(eq(booksToAuthors.bookId, input.bookId));
+
+          if (authorsForBook.length > 0 && authorsForBook[0] !== undefined) {
+            for (const author of authorsForBook) {
+              await tx
+                .insert(quotesToAuthors)
+                .values({
+                  quoteId: quoteId,
+                  authorId: author.authorId,
+                })
+                .execute();
+            }
+          }
+        }
+
+        // Insert associations with authors
+        if (input.authorIds) {
+          for (const authorId of input.authorIds) {
+            await tx
+              .insert(quotesToAuthors)
+              .values({
+                quoteId: quoteId,
+                authorId: authorId,
+              })
+              .execute();
+          }
+        }
+
+        // Insert associations with topics
+        if (input.topicIds) {
+          for (const topicId of input.topicIds) {
+            await tx
+              .insert(quotesToTopics)
+              .values({
+                quoteId: quoteId,
+                topicId: topicId,
+              })
+              .execute();
+          }
+        }
+
+        // Insert associations with tags
+        if (input.tagIds) {
+          for (const tagId of input.tagIds) {
+            await tx
+              .insert(quotesToTags)
+              .values({
+                quoteId: quoteId,
+                tagId: tagId,
+              })
+              .execute();
+          }
+        }
+
+        // Insert associations with types
+        if (input.typeIds) {
+          for (const typeId of input.typeIds) {
+            await tx
+              .insert(quotesToTypes)
+              .values({
+                quoteId: quoteId,
+                typeId: typeId,
+              })
+              .execute();
+          }
+        }
+
+        return quoteId;
+      });
+    }),
+
   // Define a "getAll" procedure for fetching all quotes (query)
   getAll: publicProcedure.query(async ({ ctx }) => {
     return ctx.db.query.quotes.findMany({});
@@ -167,10 +288,10 @@ export const quoteRouter = createTRPCRouter({
         where: (quotesToAuthors, { eq }) => eq(quotesToAuthors.quoteId, input),
       });
     }),
-
   // Define a "getAllWithBooksAndAuthors" procedure for fetching quotes with book and author details (query)
   getAllWithBooksAndAuthors: publicProcedure.query(
     async ({ ctx }): Promise<QuoteWithBookAndAuthors[]> => {
+      // Fetch quotes with book details
       const quotesWithBooks = await ctx.db
         .select({
           id: quotes.id,
@@ -189,73 +310,185 @@ export const quoteRouter = createTRPCRouter({
         .innerJoin(books, eq(quotes.bookId, books.id))
         .execute();
 
-      const quotesWithAuthors: QuoteWithBookAndAuthors[] = [];
+      // Fetch all relationships in separate queries
+      const quotesToAuthorsData = await ctx.db.query.quotesToAuthors.findMany(
+        {},
+      );
+      const quotesToTopicsData = await ctx.db.query.quotesToTopics.findMany({});
+      const quotesToTagsData = await ctx.db.query.quotesToTags.findMany({});
+      const quotesToTypesData = await ctx.db.query.quotesToTypes.findMany({});
+      const booksToGenresData = await ctx.db.query.booksToGenres.findMany({});
 
-      for (const quote of quotesWithBooks) {
-        const authorsForBook = await ctx.db
-          .select({
-            firstName: authors.firstName,
-            lastName: authors.lastName,
-          })
-          .from(booksToAuthors)
-          .innerJoin(authors, eq(booksToAuthors.authorId, authors.id))
-          .where(eq(booksToAuthors.bookId, quote.bookId))
-          .execute();
+      // Fetch all related entities in separate queries
+      const authorsData = await ctx.db.query.authors.findMany({});
+      const topicsData = await ctx.db.query.topics.findMany({});
+      const tagsData = await ctx.db.query.tags.findMany({});
+      const typesData = await ctx.db.query.types.findMany({});
+      const genresData = await ctx.db.query.genres.findMany({});
 
-        quotesWithAuthors.push({
+      // Map through each quote and enrich with related data
+      const quotesWithAuthors = quotesWithBooks.map((quote) => {
+        // Fetch the quoted author's details
+        let quotedAuthorName = "Unknown Author";
+        if (quote.quotedBy) {
+          const quotedAuthor = authorsData.find(
+            (author) => author.id === quote.quotedBy,
+          );
+          if (quotedAuthor) {
+            quotedAuthorName = `${quotedAuthor.firstName} ${quotedAuthor.lastName}`;
+          }
+        }
+
+        const quoteAuthorsIds = quotesToAuthorsData
+          .filter((qta) => qta.quoteId === quote.id)
+          .map((qta) => qta.authorId);
+        const quoteAuthors = authorsData
+          .filter((author) => quoteAuthorsIds.includes(author.id))
+          .map((author) => `${author.firstName} ${author.lastName}`);
+
+        const quoteTopicsIds = quotesToTopicsData
+          .filter((qta) => qta.quoteId === quote.id)
+          .map((qta) => qta.topicId);
+        const quoteTopics = topicsData
+          .filter((topic) => quoteTopicsIds.includes(topic.id))
+          .map((topic) => topic.name);
+
+        const quoteTagsIds = quotesToTagsData
+          .filter((qta) => qta.quoteId === quote.id)
+          .map((qta) => qta.tagId);
+        const quoteTags = tagsData
+          .filter((tag) => quoteTagsIds.includes(tag.id))
+          .map((tag) => tag.name);
+
+        const quoteTypesIds = quotesToTypesData
+          .filter((qta) => qta.quoteId === quote.id)
+          .map((qta) => qta.typeId);
+        const quoteTypes = typesData
+          .filter((type) => quoteTypesIds.includes(type.id))
+          .map((type) => type.name);
+
+        const quoteGenresIds = booksToGenresData
+          .filter((qta) => qta.bookId === quote.bookId)
+          .map((qta) => qta.genreId);
+        const quoteGenres = genresData
+          .filter((genre) => quoteGenresIds.includes(genre.id))
+          .map((genre) => genre.name);
+
+        return {
           ...quote,
-          authorNames:
-            authorsForBook
-              .map((a) => `${a.firstName} ${a.lastName}`)
-              .join(", ") || "Unknown Author(s)",
-          quotedAuthor:
-            quote.quotedBy !== null
-              ? await ctx.db
-                  .select({
-                    firstName: authors.firstName,
-                    lastName: authors.lastName,
-                  })
-                  .from(authors)
-                  .innerJoin(quotes, eq(authors.id, quotes.quotedBy))
-                  .where(eq(quotes.quotedBy, quote.quotedBy))
-                  .execute()
-                  .then((a) =>
-                    a[0] ? `${a[0].firstName} ${a[0].lastName}` : "",
-                  )
-              : "Unknown Author(s)",
-          quoteTopics: await ctx.db
-            .select({
-              topicName: topics.name,
-            })
-            .from(quotesToTopics)
-            .innerJoin(topics, eq(quotesToTopics.topicId, topics.id))
-            .where(eq(quotesToTopics.quoteId, quote.id))
-            .execute()
-            .then((t) => t.map((topic) => topic.topicName)),
-          quoteTags: await ctx.db
-            .select({
-              tagName: tags.name,
-            })
-            .from(quotesToTags)
-            .innerJoin(tags, eq(quotesToTags.tagId, tags.id))
-            .where(eq(quotesToTags.quoteId, quote.id))
-            .execute()
-            .then((t) => t.map((tag) => tag.tagName)),
-          quoteTypes: await ctx.db
-            .select({
-              typeName: types.name,
-            })
-            .from(quotesToTypes)
-            .innerJoin(types, eq(quotesToTypes.typeId, types.id))
-            .where(eq(quotesToTypes.quoteId, quote.id))
-            .execute()
-            .then((t) => t.map((type) => type.typeName)),
-        });
-      }
+          quotedAuthor: quotedAuthorName,
+          quoteAuthors: quoteAuthors,
+          quoteTopics: quoteTopics,
+          quoteTags: quoteTags,
+          quoteTypes: quoteTypes,
+          quoteGenres: quoteGenres,
+        };
+      });
 
       return quotesWithAuthors;
     },
   ),
+  getQuoteWithBookAndAuthorsById: publicProcedure
+    .input(z.number())
+    .query(async ({ ctx, input }): Promise<QuoteWithBookAndAuthors[]> => {
+      // Fetch quotes with book details
+      const quotesWithBooks = await ctx.db
+        .select({
+          id: quotes.id,
+          userId: quotes.userId,
+          text: quotes.text,
+          bookId: quotes.bookId,
+          bookTitle: books.title,
+          citation: books.citation,
+          pageNumber: quotes.pageNumber,
+          context: quotes.context,
+          quotedBy: quotes.quotedBy,
+          isImportant: quotes.isImportant,
+          isPrivate: quotes.isPrivate,
+        })
+        .from(quotes)
+        .where(eq(quotes.id, input))
+        .innerJoin(books, eq(quotes.bookId, books.id))
+        .execute();
+
+      // Fetch all relationships in separate queries
+      const quotesToAuthorsData = await ctx.db.query.quotesToAuthors.findMany(
+        {},
+      );
+      const quotesToTopicsData = await ctx.db.query.quotesToTopics.findMany({});
+      const quotesToTagsData = await ctx.db.query.quotesToTags.findMany({});
+      const quotesToTypesData = await ctx.db.query.quotesToTypes.findMany({});
+      const booksToGenresData = await ctx.db.query.booksToGenres.findMany({});
+
+      // Fetch all related entities in separate queries
+      const authorsData = await ctx.db.query.authors.findMany({});
+      const topicsData = await ctx.db.query.topics.findMany({});
+      const tagsData = await ctx.db.query.tags.findMany({});
+      const typesData = await ctx.db.query.types.findMany({});
+      const genresData = await ctx.db.query.genres.findMany({});
+
+      // Map through each quote and enrich with related data
+      const quotesWithAuthors = quotesWithBooks.map((quote) => {
+        // Fetch the quoted author's details
+        let quotedAuthorName = "Unknown Author";
+        if (quote.quotedBy) {
+          const quotedAuthor = authorsData.find(
+            (author) => author.id === quote.quotedBy,
+          );
+          if (quotedAuthor) {
+            quotedAuthorName = `${quotedAuthor.firstName} ${quotedAuthor.lastName}`;
+          }
+        }
+
+        const quoteAuthorsIds = quotesToAuthorsData
+          .filter((qta) => qta.quoteId === quote.id)
+          .map((qta) => qta.authorId);
+        const quoteAuthors = authorsData
+          .filter((author) => quoteAuthorsIds.includes(author.id))
+          .map((author) => `${author.firstName} ${author.lastName}`);
+
+        const quoteTopicsIds = quotesToTopicsData
+          .filter((qta) => qta.quoteId === quote.id)
+          .map((qta) => qta.topicId);
+        const quoteTopics = topicsData
+          .filter((topic) => quoteTopicsIds.includes(topic.id))
+          .map((topic) => topic.name);
+
+        const quoteTagsIds = quotesToTagsData
+          .filter((qta) => qta.quoteId === quote.id)
+          .map((qta) => qta.tagId);
+        const quoteTags = tagsData
+          .filter((tag) => quoteTagsIds.includes(tag.id))
+          .map((tag) => tag.name);
+
+        const quoteTypesIds = quotesToTypesData
+          .filter((qta) => qta.quoteId === quote.id)
+          .map((qta) => qta.typeId);
+        const quoteTypes = typesData
+          .filter((type) => quoteTypesIds.includes(type.id))
+          .map((type) => type.name);
+
+        const quoteGenresIds = booksToGenresData
+          .filter((qta) => qta.bookId === quote.bookId)
+          .map((qta) => qta.genreId);
+        const quoteGenres = genresData
+          .filter((genre) => quoteGenresIds.includes(genre.id))
+          .map((genre) => genre.name);
+
+        return {
+          ...quote,
+          quotedAuthor: quotedAuthorName,
+          quoteAuthors: quoteAuthors,
+          quoteTopics: quoteTopics,
+          quoteTags: quoteTags,
+          quoteTypes: quoteTypes,
+          quoteGenres: quoteGenres,
+        };
+      });
+
+      return quotesWithAuthors;
+    }),
+
   // Define a "getQuoteById" procedure for fetching a quote by ID (query)
   getQuoteById: publicProcedure
     .input(z.number())

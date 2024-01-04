@@ -1,37 +1,75 @@
 import { api } from "~/trpc/react";
 
 export default function useFilters() {
+  const books = useBooks();
+  const authors = useAuthors();
+  const quoted = useQuoted();
   const topics = useTopics();
   const tags = useTags();
   const types = useTypes();
+  const genres = useGenres();
 
-  return { topics, tags, types };
+  return { books, authors, quoted, topics, tags, types, genres };
 }
 
-export const useTopics = () => {
-    const getTopics = api.topic.getAll.useQuery();
+export const useBooks = () => {
+  const getBooks = api.book.getAll.useQuery();
 
-    const topics =
-        getTopics.data?.map((topic) => topic.name) ?? [];
+  const books = getBooks.data?.map((book) => book.title) ?? [];
 
-    return topics;
+  return books;
 };
 
+export const useAuthors = () => {
+  const getAuthors = api.author.getAll.useQuery();
+
+  const authors =
+    getAuthors.data?.map(
+      (author) => author.firstName + " " + author.lastName,
+    ) ?? [];
+
+  return authors;
+};
+
+export const useQuoted = () => {
+  const getQuotedAuthors = api.author.getAll.useQuery();
+
+  const quotedAuthors =
+    getQuotedAuthors.data?.map(
+      (author) => author.firstName + " " + author.lastName,
+    ) ?? [];
+
+  return quotedAuthors;
+};
+
+export const useTopics = () => {
+  const getTopics = api.topic.getAll.useQuery();
+
+  const topics = getTopics.data?.map((topic) => topic.name) ?? [];
+
+  return topics;
+};
 
 export const useTags = () => {
   const getTags = api.tag.getAll.useQuery();
 
-    const tags =
-        getTags.data?.map((tag) => tag.name) ?? [];
+  const tags = getTags.data?.map((tag) => tag.name) ?? [];
 
-    return tags;
-}
+  return tags;
+};
 
 export const useTypes = () => {
   const getTypes = api.type.getAll.useQuery();
 
-  const types =
-        getTypes.data?.map((type) => type.name) ?? [];
+  const types = getTypes.data?.map((type) => type.name) ?? [];
 
   return types;
+};
+
+export const useGenres = () => {
+  const getGenres = api.genre.getAll.useQuery();
+
+  const genres = getGenres.data?.map((genre) => genre.name) ?? [];
+
+  return genres;
 };

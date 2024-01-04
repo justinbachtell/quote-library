@@ -1,5 +1,9 @@
 import { z } from "zod";
-import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
+import {
+  createTRPCRouter,
+  protectedProcedure,
+  publicProcedure,
+} from "~/server/api/trpc";
 import {
   books,
   booksToAuthors,
@@ -91,12 +95,12 @@ export const bookRouter = createTRPCRouter({
     }),
 
   // Define a "getAll" procedure for fetching all books (query)
-  getAll: protectedProcedure.query(({ ctx }) => {
-    return ctx.db.query.books.findMany();
+  getAll: publicProcedure.query(({ ctx }) => {
+    return ctx.db.query.books.findMany({});
   }),
 
   // Define a "getRandom" procedure for fetching a random book (query)
-  getRandom: protectedProcedure.query(({ ctx }) => {
+  getRandom: publicProcedure.query(({ ctx }) => {
     return ctx.db.query.books.findFirst({
       orderBy: (books, { asc }) => [asc(books.id)],
     });

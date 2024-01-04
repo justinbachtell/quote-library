@@ -47,31 +47,102 @@ export const columns: ColumnDef<Quote>[] = [
     ),
     footer: (props) => props.column.id,
     cell: ({ row }) => {
+      const bookList = useFilters().books;
+      const rowBook = row.getValue("bookTitle") as string;
+
+      // Check if rowBook is a string
+      if (typeof rowBook !== "string") {
+        return null;
+      }
+
+      // Check if rowBook is in the bookList
+      if (!bookList.includes(rowBook)) {
+        return null;
+      }
+
       return (
-        <div className="flex min-w-32 space-x-2">
-          <span className="max-w-[200px] font-medium">
-            {row.getValue("bookTitle")}
-          </span>
+        <div className="flex space-x-2">
+          <span className="max-w-[500px] truncate font-medium">{rowBook}</span>
         </div>
       );
+    },
+    filterFn: (row, id, value) => {
+      const rowValue = row.getValue(id);
+
+      // Ensure rowValue is a string
+      if (typeof rowValue !== "string") {
+        return false;
+      }
+
+      // Assuming value is a string, check if it is included in the row value
+      if (typeof value === "string") {
+        return rowValue.includes(value);
+      }
+
+      return false;
     },
     enableSorting: true,
     enableHiding: true,
   },
   {
-    accessorKey: "authorNames",
+    accessorKey: "quoteAuthors",
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Author(s)" />
     ),
     footer: (props) => props.column.id,
     cell: ({ row }) => {
+      const authorList = useFilters().authors;
+      const rowAuthors = row.getValue("quoteAuthors") as string[];
+
+      // Check if rowAuthors is an array of strings
+      if (
+        !Array.isArray(rowAuthors) ||
+        !rowAuthors.every((author) => typeof author === "string")
+      ) {
+        return null;
+      }
+
+      // Filter authors that are in the authorList
+      const validAuthors = rowAuthors.filter((author) =>
+        authorList.includes(author),
+      );
+
+      if (validAuthors.length === 0) {
+        return null;
+      }
+
       return (
-        <div className="flex min-w-16 space-x-2">
-          <span className="max-w-[500px] truncate font-medium">
-            {row.getValue("authorNames")}
-          </span>
+        <div className="flex space-x-2">
+          {validAuthors.map((author) => (
+            <span key={author} className="max-w-[500px] font-medium">
+              {author}
+            </span>
+          ))}
         </div>
       );
+    },
+    filterFn: (row, id, value) => {
+      const rowValue = row.getValue(id);
+
+      // Ensure rowValue is an array of strings
+      if (
+        !Array.isArray(rowValue) ||
+        !rowValue.every((author) => typeof author === "string")
+      ) {
+        return false;
+      }
+
+      // Assuming value is an array of strings, check if any of the row values are included in value
+      if (Array.isArray(value)) {
+        return rowValue.some((author) => value.includes(author));
+      }
+
+      // Assuming value is a string, check if it is included in the row values
+      if (typeof value === "string") {
+        return rowValue.includes(value);
+      }
+
+      return false;
     },
     enableSorting: true,
     enableHiding: true,
@@ -79,22 +150,50 @@ export const columns: ColumnDef<Quote>[] = [
   {
     accessorKey: "quotedAuthor",
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Quoted" />
+      <DataTableColumnHeader column={column} title="Quoted Author" />
     ),
     footer: (props) => props.column.id,
     cell: ({ row }) => {
+      const quotedList = useFilters().quoted;
+      const rowQuoted = row.getValue("quotedAuthor") as string;
+
+      // Check if rowQuoted is a string
+      if (typeof rowQuoted !== "string") {
+        return null;
+      }
+
+      // Check if rowQuoted is in the quotedList
+      if (!quotedList.includes(rowQuoted)) {
+        return null;
+      }
+
       return (
         <div className="flex space-x-2">
           <span className="max-w-[500px] truncate font-medium">
-            {row.getValue("quotedAuthor")}
+            {rowQuoted}
           </span>
         </div>
       );
     },
+    filterFn: (row, id, value) => {
+      const rowValue = row.getValue(id);
+
+      // Ensure rowValue is a string
+      if (typeof rowValue !== "string") {
+        return false;
+      }
+
+      // Assuming value is a string, check if it is included in the row value
+      if (typeof value === "string") {
+        return rowValue.includes(value);
+      }
+
+      return false;
+    },
     enableSorting: true,
     enableHiding: true,
   },
-  /* {
+  {
     accessorKey: "pageNumber",
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Page(s)" />
@@ -111,7 +210,7 @@ export const columns: ColumnDef<Quote>[] = [
     },
     enableSorting: true,
     enableHiding: true,
-  }, */
+  },
   {
     accessorKey: "quoteTopics",
     header: ({ column }) => (
@@ -281,6 +380,67 @@ export const columns: ColumnDef<Quote>[] = [
       // Assuming value is an array of strings, check if any of the row values are included in value
       if (Array.isArray(value)) {
         return rowValue.some((tag) => value.includes(tag));
+      }
+
+      // Assuming value is a string, check if it is included in the row values
+      if (typeof value === "string") {
+        return rowValue.includes(value);
+      }
+
+      return false;
+    },
+  },
+  {
+    accessorKey: "quoteGenres",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Genres" />
+    ),
+    footer: (props) => props.column.id,
+    cell: ({ row }) => {
+      const genreList = useFilters().genres;
+      const rowGenres = row.getValue("quoteGenres") as string[];
+
+      // Check if rowGenres is an array of strings
+      if (
+        !Array.isArray(rowGenres) ||
+        !rowGenres.every((genre) => typeof genre === "string")
+      ) {
+        return null;
+      }
+
+      // Filter genres that are in the genreList
+      const validGenres = rowGenres.filter((genre) =>
+        genreList.includes(genre),
+      );
+
+      if (validGenres.length === 0) {
+        return null;
+      }
+
+      return (
+        <div className="flex space-x-2">
+          {validGenres.map((genre) => (
+            <span key={genre} className="max-w-[500px] font-medium">
+              {genre}
+            </span>
+          ))}
+        </div>
+      );
+    },
+    filterFn: (row, id, value) => {
+      const rowValue = row.getValue(id);
+
+      // Ensure rowValue is an array of strings
+      if (
+        !Array.isArray(rowValue) ||
+        !rowValue.every((genre) => typeof genre === "string")
+      ) {
+        return false;
+      }
+
+      // Assuming value is an array of strings, check if any of the row values are included in value
+      if (Array.isArray(value)) {
+        return rowValue.some((genre) => value.includes(genre));
       }
 
       // Assuming value is a string, check if it is included in the row values

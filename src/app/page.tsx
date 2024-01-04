@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { getServerAuthSession } from "~/server/auth";
 import { api } from "~/trpc/server";
 import { DataTable } from "./_components/tables/default/data-table";
@@ -8,7 +9,13 @@ export default async function Home() {
     <>
       <main className="flex min-h-screen flex-col">
         <div className="container flex flex-col">
-          <QuoteTable />
+          <Suspense
+            fallback={
+              <h1 className="text-large">Loading quotation table...</h1>
+            }
+          >
+            <QuoteTable />
+          </Suspense>
         </div>
       </main>
     </>
@@ -33,11 +40,13 @@ async function QuoteTable() {
     .map((quote) => ({
       ...quote,
       pageNumber: quote.pageNumber === null ? undefined : quote.pageNumber,
-      quotedAuthor: quote.quotedAuthor ?? undefined,
+      quotedBy: quote.quotedBy ?? undefined,
       isPrivate: quote.isPrivate ?? undefined,
+      quoteAuthors: quote.quoteAuthors ?? undefined,
       quoteTopics: quote.quoteTopics ?? undefined,
       quoteTypes: quote.quoteTypes ?? undefined,
       quoteTags: quote.quoteTags ?? undefined,
+      quoteGenres: quote.quoteGenres ?? undefined,
     }));
 
   return (
