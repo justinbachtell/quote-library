@@ -3,15 +3,18 @@ import { getServerAuthSession } from "~/server/auth";
 import { api } from "~/trpc/server";
 import { DataTable } from "./_components/tables/default/data-table";
 import { columns } from "./_components/tables/default/columns";
+import { Icons, type Icon } from "~/app/_components/icons";
 
 export default async function Home() {
   return (
     <>
       <main className="flex min-h-screen flex-col">
-        <div className="container flex flex-col">
+        <div className="container relative flex flex-col">
           <Suspense
             fallback={
-              <h1 className="text-large">Loading quotation table...</h1>
+              <figure className="relative m-auto flex h-full w-full flex-col items-center  justify-center">
+                <Icons.spinner className="m-auto h-20 w-20 animate-spin" />
+              </figure>
             }
           >
             <QuoteTable />

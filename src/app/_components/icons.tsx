@@ -29,6 +29,7 @@ import {
   LibraryBig,
   Clapperboard,
   CreditCard,
+  Loader,
   Crop,
   DollarSign,
   Download,
