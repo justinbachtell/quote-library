@@ -232,11 +232,6 @@ export default function EditQuote({ quoteId }: EditQuoteProps) {
       quotedBy: quoteData?.[0]?.quotedBy ?? 0,
       isImportant: quoteData?.[0]?.isImportant ?? false,
       isPrivate: quoteData?.[0]?.isPrivate ?? false,
-      /* quoteAuthors: quoteData?.[0]?.quoteAuthors ?? [],
-      quoteTopics: quoteData?.[0]?.quoteTopics ?? [],
-      quoteTags: quoteData?.[0]?.quoteTags ?? [],
-      quoteTypes: quoteData?.[0]?.quoteTypes ?? [],
-      quoteGenres: quoteData?.[0]?.quoteGenres ?? [], */
     },
   });
 
@@ -263,9 +258,13 @@ export default function EditQuote({ quoteId }: EditQuoteProps) {
   ) => {
     const newSelection = selectedNames.includes(name)
       ? selectedNames.filter((existingName) => existingName !== name)
-      : [...selectedNames, id];
-    // setSelectedNames(newSelection);
-    // form.setValue(fieldName, newSelection, { shouldValidate: true });
+      : [...selectedNames, name];
+    setSelectedNames(newSelection);
+    form.setValue(
+      fieldName,
+      newSelection.map((n) => parseInt(n)),
+      { shouldValidate: true },
+    );
   };
 
   useEffect(() => {
@@ -317,440 +316,459 @@ export default function EditQuote({ quoteId }: EditQuoteProps) {
     return "";
   };
 
-  if (isLoading) {
-    return <div>Loading...</div>;
-  }
+    if (isLoading) {
+      return <div>Loading...</div>;
+    }
 
-  return (
-    <div className="flex w-full flex-col gap-4">
-      <div className="flex flex-row gap-4">
-        <Button
-          className="border-1 mx-auto min-w-16 max-w-24 justify-center rounded border bg-stone-800 text-white hover:bg-stone-50 hover:text-stone-800"
-          onClick={() => {
-            setEditMode(!editMode);
-          }}
-        >
-          {editMode ? "Cancel" : "Edit Quote"}
-        </Button>
-        <Button
-          className="border-1 mx-auto min-w-16 max-w-24 justify-center rounded border bg-red-600 text-white hover:bg-red-800"
-          onClick={handleDelete}
-        >
-          Delete Quote
-        </Button>
-      </div>
-      {editMode && (
-        <Form {...form}>
-          <form
-            onSubmit={form.handleSubmit(onSubmit)}
-            className="my-8 flex flex-col gap-6"
+    return (
+      <div className="flex w-full flex-col gap-4">
+        <div className="flex flex-row justify-between gap-4">
+          <Button
+            className="border-1 mx-auto max-w-24 justify-center rounded border bg-stone-800 text-white hover:bg-stone-50 hover:text-stone-800"
+            onClick={() => {
+              setEditMode(!editMode);
+            }}
           >
-            <div className="flex w-full flex-col gap-6">
-              {/* Quote Text Field */}
-              <FormField
-                control={form.control}
-                name="text"
-                render={({ field }) => (
-                  <FormItem className="flex w-full flex-col">
-                    <FormLabel className="font-bold">Quote</FormLabel>
-                    <FormMessage className="space-y-0 text-red-600" />
-                    <FormControl>
-                      <Textarea
-                        rows={5}
-                        placeholder="Quote text"
-                        className="rounded"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormDescription>The quote text.</FormDescription>
-                  </FormItem>
-                )}
-              />
-            </div>
-            <div className="flex w-full flex-col gap-6">
-              {/* Quote Context Field */}
-              <FormField
-                control={form.control}
-                name="context"
-                render={({ field }) => (
-                  <FormItem className="flex w-full flex-col">
-                    <FormLabel className="font-bold">Quote's Context</FormLabel>
-                    <FormMessage className="space-y-0 text-red-600" />
-                    <FormControl>
-                      <Textarea
-                        placeholder="Quote context"
-                        className="rounded"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormDescription>The quote's context.</FormDescription>
-                  </FormItem>
-                )}
-              />
-            </div>
-            <div className="flex w-full flex-col gap-6 md:flex-row md:gap-4">
-              {/* Quote Page Number Field */}
-              <FormField
-                control={form.control}
-                name="pageNumber"
-                render={({ field }) => (
-                  <FormItem className="flex w-full flex-col md:w-1/3">
-                    <FormLabel className="font-bold">Page Number</FormLabel>
-                    <FormMessage className="space-y-0 text-red-600" />
-                    <FormControl>
-                      <Input type="text" className="rounded" {...field} />
-                    </FormControl>
-                    <FormDescription>The quote's page number.</FormDescription>
-                  </FormItem>
-                )}
-              />
-              {/* Quote Author Field */}
-              <FormField
-                control={form.control}
-                name="isImportant"
-                render={({ field }) => (
-                  <FormItem className="flex w-full flex-row items-center space-x-3 space-y-0 md:w-1/3">
-                    <FormControl>
-                      <Checkbox
-                        checked={field.value}
-                        onCheckedChange={field.onChange}
-                      />
-                    </FormControl>
-                    <div className="space-y-1 leading-none">
-                      <FormLabel>Important Quote?</FormLabel>
-                      <FormDescription>
-                        Check this box if this quote is very important to you.
-                      </FormDescription>
-                    </div>
-                  </FormItem>
-                )}
-              />
-              {/* Quote Private Field */}
-              <FormField
-                control={form.control}
-                name="isPrivate"
-                render={({ field }) => (
-                  <FormItem className="flex w-full flex-row items-center space-x-3 space-y-0 md:w-1/3">
-                    <FormControl>
-                      <Checkbox
-                        checked={field.value}
-                        onCheckedChange={field.onChange}
-                      />
-                    </FormControl>
-                    <div className="space-y-1 leading-none">
-                      <FormLabel>Private Quote?</FormLabel>
-                      <FormDescription>
-                        Check this box if this quote is private.
-                      </FormDescription>
-                    </div>
-                  </FormItem>
-                )}
-              />
-            </div>
-            <div className="flex w-full flex-col gap-6 md:flex-row md:gap-4">
-              {/* Quote Book Field */}
-              <FormField
-                control={form.control}
-                name="bookId"
-                render={({ field }) => (
-                  <FormItem className="flex w-full flex-col">
-                    <FormLabel className="font-bold">Book</FormLabel>
-                    <FormMessage className="space-y-0 text-red-600" />
-                    <Select
-                      value={bookId.toString()}
-                      onValueChange={(value) => setBookId(Number(value))}
-                    >
-                      <SelectTrigger className="rounded">
-                        <SelectValue placeholder="Select a book">
-                          {getDisplayValues(bookId, getBooks.data ?? [], [
-                            "title",
-                          ])}
-                        </SelectValue>
-                      </SelectTrigger>
-                      <SelectContent>
-                        {getBooks.data?.map((book) => (
-                          <SelectItem key={book.id} value={book.id.toString()}>
-                            {book.title}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormDescription>
-                      The book the quote is from.
-                    </FormDescription>
-                  </FormItem>
-                )}
-              />
-              {/* Quote Author Field */}
-              <FormField
-                control={form.control}
-                name="quotedBy"
-                render={({ field }) => (
-                  <FormItem className="flex w-full flex-col">
-                    <FormLabel className="font-bold">Quoted Author</FormLabel>
-                    <FormMessage className="space-y-0 text-red-600" />
-                    <Select
-                      value={quotedBy.toString()}
-                      onValueChange={(value) => setQuotedBy(Number(value))}
-                    >
-                      <SelectTrigger className="rounded">
-                        <SelectValue placeholder="Select an author">
-                          {getDisplayValues(quotedBy, getAuthors.data ?? [], [
-                            "firstName",
-                            "lastName",
-                          ])}
-                        </SelectValue>
-                      </SelectTrigger>
-                      <SelectContent>
-                        {getAuthors.data?.map((author) => (
-                          <SelectItem
-                            key={author.id}
-                            value={author.id.toString()}
-                          >
-                            {`${author.firstName} ${author.lastName}`}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormDescription>
-                      The author who is being quoted.
-                    </FormDescription>
-                  </FormItem>
-                )}
-              />
-            </div>
-            <div className="flex w-full flex-col gap-6 md:flex-row md:gap-4">
-              {/* Quote Topic Field */}
-              <FormField
-                control={form.control}
-                name="topicNames"
-                render={({ field }) => (
-                  <FormItem className="flex w-full flex-col">
-                    <FormLabel className="font-bold">Topic(s)</FormLabel>
-                    <FormMessage className="space-y-0 text-red-600" />
-                    <Popover
-                      open={isTopicPopoverOpen}
-                      onOpenChange={setIsTopicPopoverOpen}
-                    >
-                      <PopoverTrigger asChild>
-                        <FormControl>
-                          <Button
-                            role="combobox"
-                            aria-expanded={isTopicPopoverOpen}
-                          >
-                            Select Topic(s)
-                          </Button>
-                        </FormControl>
-                      </PopoverTrigger>
-                      <PopoverContent className="" side="bottom" align="start">
-                        <Command>
-                          <CommandInput
-                            placeholder="Search topics"
-                            className="rounded"
-                          />
-                          <CommandList>
-                            <CommandEmpty>No topics found.</CommandEmpty>
-                            <CommandGroup>
-                              {getTopics.data?.map((topic) => (
-                                <CommandItem
-                                  key={topic.name}
-                                  className="cursor-pointer"
-                                  onSelect={() => {
-                                    toggleSelection(
-                                      topic.name,
-                                      selectedTopicNames,
-                                      setSelectedTopicNames,
-                                      "topicNames",
-                                    );
-                                  }}
-                                >
-                                  <div className="flex w-full items-center justify-between">
-                                    {topic.name}
-                                    <Checkbox
-                                      checked={selectedTopicNames.includes(
-                                        topic.name,
-                                      )}
-                                      onCheckedChange={() => {
-                                        toggleSelection(
-                                          topic.name,
-                                          selectedTopicNames,
-                                          setSelectedTopicNames,
-                                          "topicNames",
-                                        );
-                                      }}
-                                    />
-                                  </div>
-                                </CommandItem>
-                              ))}
-                            </CommandGroup>
-                          </CommandList>
-                        </Command>
-                      </PopoverContent>
-                    </Popover>
-                    <FormDescription>
-                      The topic(s) the quote is about.
-                    </FormDescription>
-                  </FormItem>
-                )}
-              />
-              {/* Quote Tag Field */}
-              <FormField
-                control={form.control}
-                name="tagNames"
-                render={({ field }) => (
-                  <FormItem className="flex w-full flex-col">
-                    <FormLabel className="font-bold">Tag(s)</FormLabel>
-                    <FormMessage className="space-y-0 text-red-600" />
-                    <Popover
-                      open={isTagPopoverOpen}
-                      onOpenChange={setIsTagPopoverOpen}
-                    >
-                      <PopoverTrigger asChild>
-                        <FormControl>
-                          <Button
-                            role="combobox"
-                            aria-expanded={isTopicPopoverOpen}
-                          >
-                            Select Tag(s)
-                          </Button>
-                        </FormControl>
-                      </PopoverTrigger>
-                      <PopoverContent className="" side="bottom" align="start">
-                        <Command>
-                          <CommandInput
-                            placeholder="Search tags"
-                            className="rounded"
-                          />
-                          <CommandList>
-                            <CommandEmpty>No tags found.</CommandEmpty>
-                            <CommandGroup>
-                              {getTags.data?.map((tag) => (
-                                <CommandItem
-                                  key={tag.name}
-                                  className="cursor-pointer"
-                                  onSelect={() => {
-                                    toggleSelection(
-                                      tag.name,
-                                      selectedTagNames,
-                                      setSelectedTagNames,
-                                      "tagNames",
-                                    );
-                                  }}
-                                >
-                                  <div className="flex w-full items-center justify-between">
-                                    {tag.name}
-                                    <Checkbox
-                                      checked={selectedTagNames.includes(
-                                        tag.name,
-                                      )}
-                                      onCheckedChange={() => {
-                                        toggleSelection(
-                                          tag.name,
-                                          selectedTagNames,
-                                          setSelectedTagNames,
-                                          "tagNames",
-                                        );
-                                      }}
-                                    />
-                                  </div>
-                                </CommandItem>
-                              ))}
-                            </CommandGroup>
-                          </CommandList>
-                        </Command>
-                      </PopoverContent>
-                    </Popover>
-                    <FormDescription>
-                      The tag(s) the quote is about.
-                    </FormDescription>
-                  </FormItem>
-                )}
-              />
-              {/* Quote Type Field */}
-              <FormField
-                control={form.control}
-                name="typeNames"
-                render={({ field }) => (
-                  <FormItem className="flex w-full flex-col">
-                    <FormLabel className="font-bold">Type(s)</FormLabel>
-                    <FormMessage className="space-y-0 text-red-600" />
-                    <Popover
-                      open={isTypePopoverOpen}
-                      onOpenChange={setIsTypePopoverOpen}
-                    >
-                      <PopoverTrigger asChild>
-                        <FormControl>
-                          <Button
-                            role="combobox"
-                            aria-expanded={isTopicPopoverOpen}
-                          >
-                            Select Type(s)
-                          </Button>
-                        </FormControl>
-                      </PopoverTrigger>
-                      <PopoverContent className="" side="bottom" align="start">
-                        <Command>
-                          <CommandInput
-                            placeholder="Search types"
-                            className="rounded"
-                          />
-                          <CommandList>
-                            <CommandEmpty>No types found.</CommandEmpty>
-                            <CommandGroup>
-                              {getTypes.data?.map((type) => (
-                                <CommandItem
-                                  key={type.name}
-                                  className="cursor-pointer"
-                                  onSelect={() => {
-                                    toggleSelection(
-                                      type.name,
-                                      selectedTypeNames,
-                                      setSelectedTypeNames,
-                                      "typeNames",
-                                    );
-                                  }}
-                                >
-                                  <div className="flex w-full items-center justify-between">
-                                    {type.name}
-                                    <Checkbox
-                                      checked={selectedTypeNames.includes(
-                                        type.name,
-                                      )}
-                                      onCheckedChange={() => {
-                                        toggleSelection(
-                                          type.name,
-                                          selectedTypeNames,
-                                          setSelectedTypeNames,
-                                          "typeNames",
-                                        );
-                                      }}
-                                    />
-                                  </div>
-                                </CommandItem>
-                              ))}
-                            </CommandGroup>
-                          </CommandList>
-                        </Command>
-                      </PopoverContent>
-                    </Popover>
-                    <FormDescription>
-                      The type(s) the quote is about.
-                    </FormDescription>
-                  </FormItem>
-                )}
-              />
-            </div>
-            <Separator className="my-4 bg-stone-200" />
-            {/* Submit Button */}
-            <Button
-              type="submit"
-              className="border-1 rounded border bg-stone-800 text-white hover:bg-stone-50 hover:text-stone-800"
+            {editMode ? "Cancel" : "Edit Quote"}
+          </Button>
+          <Button
+            className="border-1 mx-auto max-w-24 justify-center rounded border bg-red-600 text-white hover:bg-red-800"
+            onClick={handleDelete}
+          >
+            Delete Quote
+          </Button>
+        </div>
+        {editMode && (
+          <Form {...form}>
+            <form
+              onSubmit={form.handleSubmit(onSubmit)}
+              className="my-8 flex flex-col gap-6"
             >
-              Update
-            </Button>
-          </form>
-        </Form>
-      )}
-    </div>
-  );
+              <div className="flex w-full flex-col gap-6">
+                {/* Quote Text Field */}
+                <FormField
+                  control={form.control}
+                  name="text"
+                  render={({ field }) => (
+                    <FormItem className="flex w-full flex-col">
+                      <FormLabel className="font-bold">Quote</FormLabel>
+                      <FormMessage className="space-y-0 text-red-600" />
+                      <FormControl>
+                        <Textarea
+                          rows={5}
+                          placeholder="Quote text"
+                          className="rounded"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormDescription>The quote text.</FormDescription>
+                    </FormItem>
+                  )}
+                />
+              </div>
+              <div className="flex w-full flex-col gap-6">
+                {/* Quote Context Field */}
+                <FormField
+                  control={form.control}
+                  name="context"
+                  render={({ field }) => (
+                    <FormItem className="flex w-full flex-col">
+                      <FormLabel className="font-bold">
+                        Quote's Context
+                      </FormLabel>
+                      <FormMessage className="space-y-0 text-red-600" />
+                      <FormControl>
+                        <Textarea
+                          placeholder="Quote context"
+                          className="rounded"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormDescription>The quote's context.</FormDescription>
+                    </FormItem>
+                  )}
+                />
+              </div>
+              <div className="flex w-full flex-col gap-6 md:flex-row md:gap-4">
+                {/* Quote Page Number Field */}
+                <FormField
+                  control={form.control}
+                  name="pageNumber"
+                  render={({ field }) => (
+                    <FormItem className="flex w-full flex-col md:w-1/3">
+                      <FormLabel className="font-bold">Page Number</FormLabel>
+                      <FormMessage className="space-y-0 text-red-600" />
+                      <FormControl>
+                        <Input type="text" className="rounded" {...field} />
+                      </FormControl>
+                      <FormDescription>
+                        The quote's page number.
+                      </FormDescription>
+                    </FormItem>
+                  )}
+                />
+                {/* Quote Author Field */}
+                <FormField
+                  control={form.control}
+                  name="isImportant"
+                  render={({ field }) => (
+                    <FormItem className="flex w-full flex-row items-center space-x-3 space-y-0 md:w-1/3">
+                      <FormControl>
+                        <Checkbox
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                        />
+                      </FormControl>
+                      <div className="space-y-1 leading-none">
+                        <FormLabel>Important Quote?</FormLabel>
+                        <FormDescription>
+                          Check this box if this quote is very important to you.
+                        </FormDescription>
+                      </div>
+                    </FormItem>
+                  )}
+                />
+                {/* Quote Private Field */}
+                <FormField
+                  control={form.control}
+                  name="isPrivate"
+                  render={({ field }) => (
+                    <FormItem className="flex w-full flex-row items-center space-x-3 space-y-0 md:w-1/3">
+                      <FormControl>
+                        <Checkbox
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                        />
+                      </FormControl>
+                      <div className="space-y-1 leading-none">
+                        <FormLabel>Private Quote?</FormLabel>
+                        <FormDescription>
+                          Check this box if this quote is private.
+                        </FormDescription>
+                      </div>
+                    </FormItem>
+                  )}
+                />
+              </div>
+              <div className="flex w-full flex-col gap-6 md:flex-row md:gap-4">
+                {/* Quote Book Field */}
+                <FormField
+                  control={form.control}
+                  name="bookId"
+                  render={({ field }) => (
+                    <FormItem className="flex w-full flex-col">
+                      <FormLabel className="font-bold">Book</FormLabel>
+                      <FormMessage className="space-y-0 text-red-600" />
+                      <Select
+                        value={bookId.toString()}
+                        onValueChange={(value) => setBookId(Number(value))}
+                      >
+                        <SelectTrigger className="rounded">
+                          <SelectValue placeholder="Select a book">
+                            {getDisplayValues(bookId, getBooks.data ?? [], [
+                              "title",
+                            ])}
+                          </SelectValue>
+                        </SelectTrigger>
+                        <SelectContent>
+                          {getBooks.data?.map((book) => (
+                            <SelectItem
+                              key={book.id}
+                              value={book.id.toString()}
+                            >
+                              {book.title}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormDescription>
+                        The book the quote is from.
+                      </FormDescription>
+                    </FormItem>
+                  )}
+                />
+                {/* Quote Author Field */}
+                <FormField
+                  control={form.control}
+                  name="quotedBy"
+                  render={({ field }) => (
+                    <FormItem className="flex w-full flex-col">
+                      <FormLabel className="font-bold">Quoted Author</FormLabel>
+                      <FormMessage className="space-y-0 text-red-600" />
+                      <Select
+                        value={quotedBy.toString()}
+                        onValueChange={(value) => setQuotedBy(Number(value))}
+                      >
+                        <SelectTrigger className="rounded">
+                          <SelectValue placeholder="Select an author">
+                            {getDisplayValues(quotedBy, getAuthors.data ?? [], [
+                              "firstName",
+                              "lastName",
+                            ])}
+                          </SelectValue>
+                        </SelectTrigger>
+                        <SelectContent>
+                          {getAuthors.data?.map((author) => (
+                            <SelectItem
+                              key={author.id}
+                              value={author.id.toString()}
+                            >
+                              {`${author.firstName} ${author.lastName}`}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormDescription>
+                        The author who is being quoted.
+                      </FormDescription>
+                    </FormItem>
+                  )}
+                />
+              </div>
+              <div className="flex w-full flex-col gap-6 md:flex-row md:gap-4">
+                {/* Quote Topic Field */}
+                <FormField
+                  control={form.control}
+                  name="topicNames"
+                  render={({ field }) => (
+                    <FormItem className="flex w-full flex-col">
+                      <FormLabel className="font-bold">Topic(s)</FormLabel>
+                      <FormMessage className="space-y-0 text-red-600" />
+                      <Popover
+                        open={isTopicPopoverOpen}
+                        onOpenChange={setIsTopicPopoverOpen}
+                      >
+                        <PopoverTrigger asChild>
+                          <FormControl>
+                            <Button
+                              role="combobox"
+                              aria-expanded={isTopicPopoverOpen}
+                            >
+                              Select Topic(s)
+                            </Button>
+                          </FormControl>
+                        </PopoverTrigger>
+                        <PopoverContent
+                          className=""
+                          side="bottom"
+                          align="start"
+                        >
+                          <Command>
+                            <CommandInput
+                              placeholder="Search topics"
+                              className="rounded"
+                            />
+                            <CommandList>
+                              <CommandEmpty>No topics found.</CommandEmpty>
+                              <CommandGroup>
+                                {getTopics.data?.map((topic) => (
+                                  <CommandItem
+                                    key={topic.name}
+                                    className="cursor-pointer"
+                                    onSelect={() => {
+                                      toggleSelection(
+                                        topic.name,
+                                        selectedTopicNames,
+                                        setSelectedTopicNames,
+                                        "topicNames",
+                                      );
+                                    }}
+                                  >
+                                    <div className="flex w-full items-center justify-between">
+                                      {topic.name}
+                                      <Checkbox
+                                        checked={selectedTopicNames.includes(
+                                          topic.name,
+                                        )}
+                                        onCheckedChange={() => {
+                                          toggleSelection(
+                                            topic.name,
+                                            selectedTopicNames,
+                                            setSelectedTopicNames,
+                                            "topicNames",
+                                          );
+                                        }}
+                                      />
+                                    </div>
+                                  </CommandItem>
+                                ))}
+                              </CommandGroup>
+                            </CommandList>
+                          </Command>
+                        </PopoverContent>
+                      </Popover>
+                      <FormDescription>
+                        The topic(s) the quote is about.
+                      </FormDescription>
+                    </FormItem>
+                  )}
+                />
+                {/* Quote Tag Field */}
+                <FormField
+                  control={form.control}
+                  name="tagNames"
+                  render={({ field }) => (
+                    <FormItem className="flex w-full flex-col">
+                      <FormLabel className="font-bold">Tag(s)</FormLabel>
+                      <FormMessage className="space-y-0 text-red-600" />
+                      <Popover
+                        open={isTagPopoverOpen}
+                        onOpenChange={setIsTagPopoverOpen}
+                      >
+                        <PopoverTrigger asChild>
+                          <FormControl>
+                            <Button
+                              role="combobox"
+                              aria-expanded={isTopicPopoverOpen}
+                            >
+                              Select Tag(s)
+                            </Button>
+                          </FormControl>
+                        </PopoverTrigger>
+                        <PopoverContent
+                          className=""
+                          side="bottom"
+                          align="start"
+                        >
+                          <Command>
+                            <CommandInput
+                              placeholder="Search tags"
+                              className="rounded"
+                            />
+                            <CommandList>
+                              <CommandEmpty>No tags found.</CommandEmpty>
+                              <CommandGroup>
+                                {getTags.data?.map((tag) => (
+                                  <CommandItem
+                                    key={tag.name}
+                                    className="cursor-pointer"
+                                    onSelect={() => {
+                                      toggleSelection(
+                                        tag.name,
+                                        selectedTagNames,
+                                        setSelectedTagNames,
+                                        "tagNames",
+                                      );
+                                    }}
+                                  >
+                                    <div className="flex w-full items-center justify-between">
+                                      {tag.name}
+                                      <Checkbox
+                                        checked={selectedTagNames.includes(
+                                          tag.name,
+                                        )}
+                                        onCheckedChange={() => {
+                                          toggleSelection(
+                                            tag.name,
+                                            selectedTagNames,
+                                            setSelectedTagNames,
+                                            "tagNames",
+                                          );
+                                        }}
+                                      />
+                                    </div>
+                                  </CommandItem>
+                                ))}
+                              </CommandGroup>
+                            </CommandList>
+                          </Command>
+                        </PopoverContent>
+                      </Popover>
+                      <FormDescription>
+                        The tag(s) the quote is about.
+                      </FormDescription>
+                    </FormItem>
+                  )}
+                />
+                {/* Quote Type Field */}
+                <FormField
+                  control={form.control}
+                  name="typeNames"
+                  render={({ field }) => (
+                    <FormItem className="flex w-full flex-col">
+                      <FormLabel className="font-bold">Type(s)</FormLabel>
+                      <FormMessage className="space-y-0 text-red-600" />
+                      <Popover
+                        open={isTypePopoverOpen}
+                        onOpenChange={setIsTypePopoverOpen}
+                      >
+                        <PopoverTrigger asChild>
+                          <FormControl>
+                            <Button
+                              role="combobox"
+                              aria-expanded={isTopicPopoverOpen}
+                            >
+                              Select Type(s)
+                            </Button>
+                          </FormControl>
+                        </PopoverTrigger>
+                        <PopoverContent
+                          className=""
+                          side="bottom"
+                          align="start"
+                        >
+                          <Command>
+                            <CommandInput
+                              placeholder="Search types"
+                              className="rounded"
+                            />
+                            <CommandList>
+                              <CommandEmpty>No types found.</CommandEmpty>
+                              <CommandGroup>
+                                {getTypes.data?.map((type) => (
+                                  <CommandItem
+                                    key={type.name}
+                                    className="cursor-pointer"
+                                    onSelect={() => {
+                                      toggleSelection(
+                                        type.name,
+                                        selectedTypeNames,
+                                        setSelectedTypeNames,
+                                        "typeNames",
+                                      );
+                                    }}
+                                  >
+                                    <div className="flex w-full items-center justify-between">
+                                      {type.name}
+                                      <Checkbox
+                                        checked={selectedTypeNames.includes(
+                                          type.name,
+                                        )}
+                                        onCheckedChange={() => {
+                                          toggleSelection(
+                                            type.name,
+                                            selectedTypeNames,
+                                            setSelectedTypeNames,
+                                            "typeNames",
+                                          );
+                                        }}
+                                      />
+                                    </div>
+                                  </CommandItem>
+                                ))}
+                              </CommandGroup>
+                            </CommandList>
+                          </Command>
+                        </PopoverContent>
+                      </Popover>
+                      <FormDescription>
+                        The type(s) the quote is about.
+                      </FormDescription>
+                    </FormItem>
+                  )}
+                />
+              </div>
+              <Separator className="my-4 bg-stone-200" />
+              {/* Submit Button */}
+              <Button
+                type="submit"
+                className="border-1 rounded border bg-stone-800 text-white hover:bg-stone-50 hover:text-stone-800"
+              >
+                Update
+              </Button>
+            </form>
+          </Form>
+        )}
+      </div>
+    );
 }

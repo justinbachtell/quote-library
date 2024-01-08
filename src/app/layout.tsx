@@ -10,6 +10,7 @@ import { getServerAuthSession } from "~/server/auth";
 // import { api } from "~/trpc/server";
 import { Toaster } from "@/components/ui/toaster";
 import Navbar from "~/app/_components/navbar";
+import Footer from "~/app/_components/footer";
 import { env } from "~/env";
 
 const inter = Inter({
@@ -49,6 +50,7 @@ export default async function RootLayout({
             <Navbar authenticated={authUser} user={isSession} />
             {children}
             <Toaster />
+            <Footer />
           </ThemeProvider>
         </TRPCReactProvider>
       </body>
