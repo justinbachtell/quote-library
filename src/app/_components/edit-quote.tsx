@@ -277,29 +277,51 @@ export default function EditQuote({ quoteId }: EditQuoteProps) {
         quotedBy: quoteData[0].quotedBy ?? 0,
         isImportant: quoteData[0].isImportant ?? false,
         isPrivate: quoteData[0].isPrivate ?? false,
-        /* quoteAuthors: quoteData[0].quoteAuthors,
-        quoteTopics: quoteData[0].quoteTopics,
-        quoteTags: quoteData[0].quoteTags,
-        quoteTypes: quoteData[0].quoteTypes,
-        quoteGenres: quoteData[0].quoteGenres, */
+        authorNames: quoteData[0].quoteAuthors.map((a) => parseInt(a)),
+        topicNames: quoteData[0].quoteTopics.map((t) => parseInt(t)),
+        tagNames: quoteData[0].quoteTags.map((t) => parseInt(t)),
+        typeNames: quoteData[0].quoteTypes.map((t) => parseInt(t)),
+        genreNames: quoteData[0].quoteGenres.map((g) => parseInt(g)),
       });
     }
   }, [quoteData, form]);
 
   useEffect(() => {
     if (quoteData?.[0]) {
-      setText(quoteData[0].text ?? "");
-      setIsImportant(quoteData[0].isImportant ?? false);
-      setIsPrivate(quoteData[0].isPrivate ?? false);
-      setPageNumber(quoteData[0].pageNumber ?? "");
-      setContext(quoteData[0].context ?? "");
-      setBookId(quoteData[0].bookId ?? 0);
-      setQuotedBy(quoteData[0].quotedBy ?? 0);
-      setSelectedAuthorNames(quoteData[0].quoteAuthors);
-      setSelectedTopicNames(quoteData[0].quoteTopics);
-      setSelectedTagNames(quoteData[0].quoteTags);
-      setSelectedTypeNames(quoteData[0].quoteTypes);
-      setSelectedGenreNames(quoteData[0].quoteGenres);
+      const {
+        text = "",
+        isImportant = false,
+        isPrivate = false,
+        pageNumber = "",
+        context = "",
+        bookId = 0,
+        quotedBy = 0,
+        quoteAuthors = [],
+        quoteTopics = [],
+        quoteTags = [],
+        quoteTypes = [],
+        quoteGenres = [],
+      } = quoteData[0];
+
+      // For boolean values, use the nullish coalescing operator to provide a default value of false
+      setIsImportant(isImportant ?? false);
+      setIsPrivate(isPrivate ?? false);
+
+      // For string values, use the nullish coalescing operator to provide a default value of an empty string
+      setText(text ?? "");
+      setPageNumber(pageNumber ?? "");
+      setContext(context ?? "");
+
+      // For number values, use the nullish coalescing operator to provide a default value of 0
+      setBookId(bookId ?? 0);
+      setQuotedBy(quotedBy ?? 0);
+
+      // For array values, ensure they are not null before setting them
+      setSelectedAuthorNames(quoteAuthors ?? []);
+      setSelectedTopicNames(quoteTopics ?? []);
+      setSelectedTagNames(quoteTags ?? []);
+      setSelectedTypeNames(quoteTypes ?? []);
+      setSelectedGenreNames(quoteGenres ?? []);
     }
   }, [quoteData]);
 
