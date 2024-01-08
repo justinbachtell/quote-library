@@ -303,18 +303,25 @@ export default function EditQuote({ quoteId }: EditQuoteProps) {
         quoteGenres = [],
       } = quoteData[0];
 
-      setText(text);
-      setIsImportant(isImportant);
-      setIsPrivate(isPrivate);
-      setPageNumber(pageNumber);
-      setContext(context);
-      setBookId(bookId);
-      setQuotedBy(quotedBy);
-      setSelectedAuthorNames(quoteAuthors);
-      setSelectedTopicNames(quoteTopics);
-      setSelectedTagNames(quoteTags);
-      setSelectedTypeNames(quoteTypes);
-      setSelectedGenreNames(quoteGenres);
+      // For boolean values, use the nullish coalescing operator to provide a default value of false
+      setIsImportant(isImportant ?? false);
+      setIsPrivate(isPrivate ?? false);
+
+      // For string values, use the nullish coalescing operator to provide a default value of an empty string
+      setText(text ?? "");
+      setPageNumber(pageNumber ?? "");
+      setContext(context ?? "");
+
+      // For number values, use the nullish coalescing operator to provide a default value of 0
+      setBookId(bookId ?? 0);
+      setQuotedBy(quotedBy ?? 0);
+
+      // For array values, ensure they are not null before setting them
+      setSelectedAuthorNames(quoteAuthors ?? []);
+      setSelectedTopicNames(quoteTopics ?? []);
+      setSelectedTagNames(quoteTags ?? []);
+      setSelectedTypeNames(quoteTypes ?? []);
+      setSelectedGenreNames(quoteGenres ?? []);
     }
   }, [quoteData]);
 
