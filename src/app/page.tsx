@@ -6,6 +6,8 @@ import { columns } from "./_components/tables/default/columns";
 import { Icons } from "~/app/_components/icons";
 
 export default async function Home() {
+  const session = await getServerAuthSession();
+
   return (
     <>
       <main className="flex min-h-screen flex-col">

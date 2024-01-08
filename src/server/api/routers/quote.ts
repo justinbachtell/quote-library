@@ -34,12 +34,6 @@ type QuoteWithBookAndAuthors = {
   quoteGenres: string[];
 };
 
-type AssociationTable = {
-  id: number;
-  quoteId: number;
-  relatedId: number;
-};
-
 export const quoteRouter = createTRPCRouter({
   // Define a "create" procedure for creating a quote (mutation)
   create: protectedProcedure
