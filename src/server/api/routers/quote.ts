@@ -31,7 +31,6 @@ type QuoteWithBookAndAuthors = {
   quoteTopics: string[];
   quoteTags: string[];
   quoteTypes: string[];
-  quoteGenres: string[];
 };
 
 export const quoteRouter = createTRPCRouter({
@@ -144,18 +143,18 @@ export const quoteRouter = createTRPCRouter({
     }),
 
   // Define a "update" procedure for updating a quote (mutation)
+  // Define an "update" procedure for updating a quote (mutation)
   update: protectedProcedure
     .input(
       z.object({
         id: z.number(),
-        text: z.string(),
-        bookId: z.number(),
+        text: z.string().optional(),
+        bookId: z.number().optional(),
         context: z.string().optional(),
         pageNumber: z.string().optional(),
         quotedBy: z.number().optional(),
-        isImportant: z.boolean(),
-        isPrivate: z.boolean(),
-        authorIds: z.array(z.number()).optional(),
+        isImportant: z.boolean().optional(),
+        isPrivate: z.boolean().optional(),
         topicIds: z.array(z.number()).optional(),
         tagIds: z.array(z.number()).optional(),
         typeIds: z.array(z.number()).optional(),
@@ -163,16 +162,10 @@ export const quoteRouter = createTRPCRouter({
     )
     .mutation(async ({ ctx, input }) => {
       return ctx.db.transaction(async (tx) => {
-        // Check if the user is logged in
-        if (!ctx.session?.user.id) {
-          throw new Error("You must be logged in to update a quote.");
-        }
-
         // Update the quote in the database
         await tx
           .update(quotes)
           .set({
-            userId: ctx.session.user.id,
             text: input.text,
             bookId: input.bookId,
             context: input.context,
@@ -184,145 +177,61 @@ export const quoteRouter = createTRPCRouter({
           .where(eq(quotes.id, input.id))
           .execute();
 
-        // Update associations with authors
-        if (input.authorIds !== undefined) {
-          const existingAuthorAssociations = await tx
-            .select({
-              id: quotesToAuthors.quoteId,
-              authorId: quotesToAuthors.authorId,
-            })
-            .from(quotesToAuthors)
-            .where(eq(quotesToAuthors.quoteId, input.id))
-            .execute();
-
-          const existingAuthorIds = existingAuthorAssociations.map(
-            (assoc) => assoc.authorId,
-          );
-
-          // Delete author associations not in the input
-          for (const existingAssoc of existingAuthorAssociations) {
-            if (!input.authorIds.includes(existingAssoc.authorId)) {
-              await tx
-                .delete(quotesToAuthors)
-                .where(eq(quotesToAuthors.quoteId, existingAssoc.id))
-                .execute();
-            }
-          }
-
-          // Add new author associations
-          for (const newAuthorId of input.authorIds) {
-            if (!existingAuthorIds.includes(newAuthorId)) {
-              await tx
-                .insert(quotesToAuthors)
-                .values({ quoteId: input.id, authorId: newAuthorId })
-                .execute();
-            }
-          }
-        }
-
-        // Update associations with topics
-        if (input.topicIds !== undefined) {
-          const existingTopicAssociations = await tx
-            .select({
-              id: quotesToTopics.quoteId,
-              topicId: quotesToTopics.topicId,
-            })
-            .from(quotesToTopics)
+        // Update topics
+        if (input.topicIds) {
+          await tx
+            .delete(quotesToTopics)
             .where(eq(quotesToTopics.quoteId, input.id))
             .execute();
 
-          const existingTopicIds = existingTopicAssociations.map(
-            (assoc) => assoc.topicId,
-          );
-
-          // Delete topic associations not in the input
-          for (const existingAssoc of existingTopicAssociations) {
-            if (!input.topicIds.includes(existingAssoc.topicId)) {
-              await tx
-                .delete(quotesToTopics)
-                .where(eq(quotesToTopics.quoteId, existingAssoc.id))
-                .execute();
-            }
-          }
-
-          // Add new topic associations
-          for (const newTopicId of input.topicIds) {
-            if (!existingTopicIds.includes(newTopicId)) {
-              await tx
-                .insert(quotesToTopics)
-                .values({ quoteId: input.id, topicId: newTopicId })
-                .execute();
-            }
+          for (const topicId of input.topicIds) {
+            await tx
+              .insert(quotesToTopics)
+              .values({
+                quoteId: input.id,
+                topicId: topicId,
+              })
+              .execute();
           }
         }
 
-        // Update associations with tags
-        if (input.tagIds !== undefined) {
-          const existingTagAssociations = await tx
-            .select({ id: quotesToTags.quoteId, tagId: quotesToTags.tagId })
-            .from(quotesToTags)
+        // Update tags
+        if (input.tagIds) {
+          await tx
+            .delete(quotesToTags)
             .where(eq(quotesToTags.quoteId, input.id))
             .execute();
 
-          const existingTagIds = existingTagAssociations.map(
-            (assoc) => assoc.tagId,
-          );
-
-          // Delete tag associations not in the input
-          for (const existingAssoc of existingTagAssociations) {
-            if (!input.tagIds.includes(existingAssoc.tagId)) {
-              await tx
-                .delete(quotesToTags)
-                .where(eq(quotesToTags.quoteId, existingAssoc.id))
-                .execute();
-            }
-          }
-
-          // Add new tag associations
-          for (const newTagId of input.tagIds) {
-            if (!existingTagIds.includes(newTagId)) {
-              await tx
-                .insert(quotesToTags)
-                .values({ quoteId: input.id, tagId: newTagId })
-                .execute();
-            }
+          for (const tagId of input.tagIds) {
+            await tx
+              .insert(quotesToTags)
+              .values({
+                quoteId: input.id,
+                tagId: tagId,
+              })
+              .execute();
           }
         }
 
-        // Update associations with types
-        if (input.typeIds !== undefined) {
-          const existingTypeAssociations = await tx
-            .select({ id: quotesToTypes.quoteId, typeId: quotesToTypes.typeId })
-            .from(quotesToTypes)
+        // Update types
+        if (input.typeIds) {
+          await tx
+            .delete(quotesToTypes)
             .where(eq(quotesToTypes.quoteId, input.id))
             .execute();
 
-          const existingTypeIds = existingTypeAssociations.map(
-            (assoc) => assoc.typeId,
-          );
-
-          // Delete type associations not in the input
-          for (const existingAssoc of existingTypeAssociations) {
-            if (!input.typeIds.includes(existingAssoc.typeId)) {
-              await tx
-                .delete(quotesToTypes)
-                .where(eq(quotesToTypes.quoteId, existingAssoc.id))
-                .execute();
-            }
-          }
-
-          // Add new type associations
-          for (const newTypeId of input.typeIds) {
-            if (!existingTypeIds.includes(newTypeId)) {
-              await tx
-                .insert(quotesToTypes)
-                .values({ quoteId: input.id, typeId: newTypeId })
-                .execute();
-            }
+          for (const typeId of input.typeIds) {
+            await tx
+              .insert(quotesToTypes)
+              .values({
+                quoteId: input.id,
+                typeId: typeId,
+              })
+              .execute();
           }
         }
 
-        return;
+        return `Quote with ID ${input.id} was successfully updated.`;
       });
     }),
 
@@ -418,14 +327,12 @@ export const quoteRouter = createTRPCRouter({
       const quotesToTopicsData = await ctx.db.query.quotesToTopics.findMany({});
       const quotesToTagsData = await ctx.db.query.quotesToTags.findMany({});
       const quotesToTypesData = await ctx.db.query.quotesToTypes.findMany({});
-      const booksToGenresData = await ctx.db.query.booksToGenres.findMany({});
 
       // Fetch all related entities in separate queries
       const authorsData = await ctx.db.query.authors.findMany({});
       const topicsData = await ctx.db.query.topics.findMany({});
       const tagsData = await ctx.db.query.tags.findMany({});
       const typesData = await ctx.db.query.types.findMany({});
-      const genresData = await ctx.db.query.genres.findMany({});
 
       // Map through each quote and enrich with related data
       const quotesWithAuthors = quotesWithBooks.map((quote) => {
@@ -468,13 +375,6 @@ export const quoteRouter = createTRPCRouter({
           .filter((type) => quoteTypesIds.includes(type.id))
           .map((type) => type.name);
 
-        const quoteGenresIds = booksToGenresData
-          .filter((qta) => qta.bookId === quote.bookId)
-          .map((qta) => qta.genreId);
-        const quoteGenres = genresData
-          .filter((genre) => quoteGenresIds.includes(genre.id))
-          .map((genre) => genre.name);
-
         return {
           ...quote,
           quotedAuthor: quotedAuthorName,
@@ -482,7 +382,6 @@ export const quoteRouter = createTRPCRouter({
           quoteTopics: quoteTopics,
           quoteTags: quoteTags,
           quoteTypes: quoteTypes,
-          quoteGenres: quoteGenres,
         };
       });
 
@@ -503,7 +402,6 @@ export const quoteRouter = createTRPCRouter({
           citation: books.citation,
           pageNumber: quotes.pageNumber,
           context: quotes.context,
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
           quotedBy: quotes.quotedBy,
           isImportant: quotes.isImportant,
           isPrivate: quotes.isPrivate,
@@ -520,14 +418,12 @@ export const quoteRouter = createTRPCRouter({
       const quotesToTopicsData = await ctx.db.query.quotesToTopics.findMany({});
       const quotesToTagsData = await ctx.db.query.quotesToTags.findMany({});
       const quotesToTypesData = await ctx.db.query.quotesToTypes.findMany({});
-      const booksToGenresData = await ctx.db.query.booksToGenres.findMany({});
 
       // Fetch all related entities in separate queries
       const authorsData = await ctx.db.query.authors.findMany({});
       const topicsData = await ctx.db.query.topics.findMany({});
       const tagsData = await ctx.db.query.tags.findMany({});
       const typesData = await ctx.db.query.types.findMany({});
-      const genresData = await ctx.db.query.genres.findMany({});
 
       // Map through each quote and enrich with related data
       const quotesWithAuthors = quotesWithBooks.map((quote) => {
@@ -554,37 +450,29 @@ export const quoteRouter = createTRPCRouter({
           .map((qta) => qta.topicId);
         const quoteTopics = topicsData
           .filter((topic) => quoteTopicsIds.includes(topic.id))
-          .map((topic) => topic.name);
+          .map((topic) => topic.id);
 
         const quoteTagsIds = quotesToTagsData
           .filter((qta) => qta.quoteId === quote.id)
           .map((qta) => qta.tagId);
         const quoteTags = tagsData
           .filter((tag) => quoteTagsIds.includes(tag.id))
-          .map((tag) => tag.name);
+          .map((tag) => tag.id);
 
         const quoteTypesIds = quotesToTypesData
           .filter((qta) => qta.quoteId === quote.id)
           .map((qta) => qta.typeId);
         const quoteTypes = typesData
           .filter((type) => quoteTypesIds.includes(type.id))
-          .map((type) => type.name);
-
-        const quoteGenresIds = booksToGenresData
-          .filter((qta) => qta.bookId === quote.bookId)
-          .map((qta) => qta.genreId);
-        const quoteGenres = genresData
-          .filter((genre) => quoteGenresIds.includes(genre.id))
-          .map((genre) => genre.name);
+          .map((type) => type.id);
 
         return {
           ...quote,
           quotedAuthor: quotedAuthorName,
           quoteAuthors: quoteAuthors,
-          quoteTopics: quoteTopics,
-          quoteTags: quoteTags,
-          quoteTypes: quoteTypes,
-          quoteGenres: quoteGenres,
+          quoteTopics: quoteTopics.map(String),
+          quoteTags: quoteTags.map(String),
+          quoteTypes: quoteTypes.map(String),
         };
       });
 

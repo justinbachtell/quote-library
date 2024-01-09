@@ -48,4 +48,11 @@ export const genreRouter = createTRPCRouter({
       orderBy: (genres, { asc }) => [asc(genres.id)],
     });
   }),
+
+  // Define a "getById" procedure for fetching a genre by its ID (query)
+  getById: publicProcedure.input(z.number()).query(({ ctx, input }) => {
+    return ctx.db.query.genres.findFirst({
+      where: (genres, { eq }) => eq(genres.id, input),
+    });
+  }),
 });

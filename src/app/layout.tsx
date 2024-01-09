@@ -33,7 +33,13 @@ export default async function RootLayout({
 
   const isSession = session ? true : false;
 
-  const authUser = session?.user.email === env.ADMIN_EMAIL ? true : false;
+  // check if user is admin or if node env is development
+  const authUser =
+    session?.user.email === env.ADMIN_EMAIL
+      ? true
+      : env.NODE_ENV === "development"
+        ? true
+        : false;
 
   return (
     <html lang="en">

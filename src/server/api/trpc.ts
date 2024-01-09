@@ -13,6 +13,7 @@ import { ZodError } from "zod";
 
 import { getServerAuthSession } from "~/server/auth";
 import { db } from "~/server/db";
+import { env } from "~/env";
 
 /**
  * 1. CONTEXT
@@ -82,13 +83,18 @@ export const publicProcedure = t.procedure;
 
 /** Reusable middleware that enforces users are logged in before running the procedure. */
 const enforceUserIsAuthed = t.middleware(({ ctx, next }) => {
-  if (!ctx.session || !ctx.session.user) {
+  if (!ctx.session || !ctx.session.user || env.NODE_ENV !== "development") {
     throw new TRPCError({ code: "UNAUTHORIZED" });
   }
   return next({
     ctx: {
-      // infers the `session` as non-nullable
-      session: { ...ctx.session, user: ctx.session.user },
+      // infers the `session` as non-nullable or if node env is dev, use the admin user
+      session: {
+        ...ctx.session,
+        user: ctx.session.user || {
+          email: env.ADMIN_EMAIL,
+        },
+      },
     },
   });
 });

@@ -47,4 +47,11 @@ export const typeRouter = createTRPCRouter({
       orderBy: (types, { asc }) => [asc(types.id)],
     });
   }),
+
+  // Define a "getById" procedure for fetching a type by its ID (query)
+  getById: publicProcedure.input(z.number()).query(({ ctx, input }) => {
+    return ctx.db.query.types.findFirst({
+      where: (types, { eq }) => eq(types.id, input),
+    });
+  }),
 });

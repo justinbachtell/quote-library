@@ -47,4 +47,11 @@ export const tagRouter = createTRPCRouter({
       orderBy: (tags, { asc }) => [asc(tags.id)],
     });
   }),
+
+  // Define a "getById" procedure for fetching a tag by its ID (query)
+  getById: publicProcedure.input(z.number()).query(({ ctx, input }) => {
+    return ctx.db.query.tags.findFirst({
+      where: (tags, { eq }) => eq(tags.id, input),
+    });
+  }),
 });
