@@ -47,4 +47,11 @@ export const topicRouter = createTRPCRouter({
       orderBy: (topics, { asc }) => [asc(topics.id)],
     });
   }),
+
+  // Define a "getById" procedure for fetching a topic by its ID (query)
+  getById: publicProcedure.input(z.number()).query(({ ctx, input }) => {
+    return ctx.db.query.topics.findFirst({
+      where: (topics, { eq }) => eq(topics.id, input),
+    });
+  }),
 });

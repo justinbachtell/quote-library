@@ -16,6 +16,10 @@ export default async function QuotePage({
 }) {
   const id = Number(params.id);
 
+  if (!id) {
+    throw new Error("No quote id provided");
+  }
+
   const session = await getServerAuthSession();
 
   const sessionUserEmail = session?.user.email;
@@ -32,16 +36,46 @@ export default async function QuotePage({
       quoteTopics: quote.quoteTopics ?? undefined,
       quoteTypes: quote.quoteTypes ?? undefined,
       quoteTags: quote.quoteTags ?? undefined,
-      quoteGenres: quote.quoteGenres ?? undefined,
     }));
+
+  const quoteTopics = quote[0]?.quoteTopics ?? [];
+  const quoteTopicsArray = [];
+
+  for (const topicId of quoteTopics) {
+    const topic = await api.topic.getById.query(parseInt(topicId));
+    if (topic) {
+      quoteTopicsArray.push(topic);
+    }
+  }
+
+  const quoteTypes = quote[0]?.quoteTypes ?? [];
+  const quoteTypesArray = [];
+
+  for (const typeId of quoteTypes) {
+    const type = await api.type.getById.query(parseInt(typeId));
+    if (type) {
+      quoteTypesArray.push(type);
+    }
+  }
+
+  const quoteTags = quote[0]?.quoteTags ?? [];
+  const quoteTagsArray = [];
+
+  for (const tagId of quoteTags) {
+    const tag = await api.tag.getById.query(parseInt(tagId));
+    if (tag) {
+      quoteTagsArray.push(tag);
+    }
+  }
 
   return (
     <div className="container my-8 flex flex-col">
-      {sessionUserEmail === env.ADMIN_EMAIL && (
-        <div className="mb-8 flex justify-center">
-          <EditQuote quoteId={quote[0]?.id} />
-        </div>
-      )}
+      {sessionUserEmail === env.ADMIN_EMAIL ||
+        (env.NODE_ENV === "development" && quote[0]?.id && (
+          <div className="mb-8 flex justify-center">
+            <EditQuote quoteId={quote[0].id} />
+          </div>
+        ))}
       <Suspense fallback={<h1 className="text-large">Loading...</h1>}>
         <div className="flex flex-col gap-8">
           <div className="flex flex-col">
@@ -70,15 +104,17 @@ export default async function QuotePage({
             <div className="flex w-1/2 flex-col gap-4">
               <h2 className="text-xl font-bold">Topics</h2>
               <ul>
-                {quote[0]?.quoteTopics.map((topic) => (
-                  <li key={topic}>{topic}</li>
+                {quoteTopicsArray.map((topic) => (
+                  <li key={topic.id}>{topic.name}</li>
                 ))}
               </ul>
             </div>
             <div className="flex w-1/2 flex-col gap-4">
               <h2 className="text-xl font-bold">Types</h2>
               <ul>
-                {quote[0]?.quoteTypes.map((type) => <li key={type}>{type}</li>)}
+                {quoteTypesArray.map((type) => (
+                  <li key={type.id}>{type.name}</li>
+                ))}
               </ul>
             </div>
           </div>
@@ -86,14 +122,8 @@ export default async function QuotePage({
             <div className="flex w-1/2 flex-col gap-4">
               <h2 className="text-xl font-bold">Tags</h2>
               <ul>
-                {quote[0]?.quoteTags.map((tag) => <li key={tag}>{tag}</li>)}
-              </ul>
-            </div>
-            <div className="flex w-1/2 flex-col gap-4">
-              <h2 className="text-xl font-bold">Genres</h2>
-              <ul>
-                {quote[0]?.quoteGenres.map((genre) => (
-                  <li key={genre}>{genre}</li>
+                {quoteTagsArray.map((tag) => (
+                  <li key={tag.id}>{tag.name}</li>
                 ))}
               </ul>
             </div>
