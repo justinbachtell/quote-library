@@ -238,8 +238,14 @@ export default function EditQuote({ quoteId }: EditQuoteProps) {
   // Handle form submission
   const onSubmit = (values: z.infer<typeof quoteSchema>) => {
     updateQuote.mutate({
-      ...values,
       id,
+      text: values.text,
+      bookId: values.bookId,
+      context: values.context,
+      pageNumber: values.pageNumber,
+      quotedBy: values.quotedBy,
+      isImportant: values.isImportant,
+      isPrivate: values.isPrivate,
     });
   };
 
