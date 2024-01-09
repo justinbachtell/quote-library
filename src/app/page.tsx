@@ -51,7 +51,6 @@ async function QuoteTable() {
       quoteTopics: quote.quoteTopics ?? undefined,
       quoteTypes: quote.quoteTypes ?? undefined,
       quoteTags: quote.quoteTags ?? undefined,
-      quoteGenres: quote.quoteGenres ?? undefined,
     }));
 
   return (
