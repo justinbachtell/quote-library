@@ -70,12 +70,13 @@ export default async function QuotePage({
 
   return (
     <div className="container my-8 flex flex-col">
-      {sessionUserEmail === env.ADMIN_EMAIL ||
-        (env.NODE_ENV === "development" && quote[0]?.id && (
+      {(sessionUserEmail === env.ADMIN_EMAIL ||
+        env.NODE_ENV === "development") &&
+        quote[0]?.id && (
           <div className="mb-8 flex justify-center">
             <EditQuote quoteId={quote[0].id} />
           </div>
-        ))}
+        )}
       <Suspense fallback={<h1 className="text-large">Loading...</h1>}>
         <div className="flex flex-col gap-8">
           <div className="flex flex-col">
