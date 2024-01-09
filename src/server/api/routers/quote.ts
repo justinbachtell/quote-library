@@ -327,14 +327,12 @@ export const quoteRouter = createTRPCRouter({
       const quotesToTopicsData = await ctx.db.query.quotesToTopics.findMany({});
       const quotesToTagsData = await ctx.db.query.quotesToTags.findMany({});
       const quotesToTypesData = await ctx.db.query.quotesToTypes.findMany({});
-      const booksToGenresData = await ctx.db.query.booksToGenres.findMany({});
 
       // Fetch all related entities in separate queries
       const authorsData = await ctx.db.query.authors.findMany({});
       const topicsData = await ctx.db.query.topics.findMany({});
       const tagsData = await ctx.db.query.tags.findMany({});
       const typesData = await ctx.db.query.types.findMany({});
-      const genresData = await ctx.db.query.genres.findMany({});
 
       // Map through each quote and enrich with related data
       const quotesWithAuthors = quotesWithBooks.map((quote) => {
@@ -377,13 +375,6 @@ export const quoteRouter = createTRPCRouter({
           .filter((type) => quoteTypesIds.includes(type.id))
           .map((type) => type.name);
 
-        const quoteGenresIds = booksToGenresData
-          .filter((qta) => qta.bookId === quote.bookId)
-          .map((qta) => qta.genreId);
-        const quoteGenres = genresData
-          .filter((genre) => quoteGenresIds.includes(genre.id))
-          .map((genre) => genre.name);
-
         return {
           ...quote,
           quotedAuthor: quotedAuthorName,
@@ -391,7 +382,6 @@ export const quoteRouter = createTRPCRouter({
           quoteTopics: quoteTopics,
           quoteTags: quoteTags,
           quoteTypes: quoteTypes,
-          quoteGenres: quoteGenres,
         };
       });
 
@@ -412,7 +402,6 @@ export const quoteRouter = createTRPCRouter({
           citation: books.citation,
           pageNumber: quotes.pageNumber,
           context: quotes.context,
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
           quotedBy: quotes.quotedBy,
           isImportant: quotes.isImportant,
           isPrivate: quotes.isPrivate,
@@ -429,14 +418,12 @@ export const quoteRouter = createTRPCRouter({
       const quotesToTopicsData = await ctx.db.query.quotesToTopics.findMany({});
       const quotesToTagsData = await ctx.db.query.quotesToTags.findMany({});
       const quotesToTypesData = await ctx.db.query.quotesToTypes.findMany({});
-      const booksToGenresData = await ctx.db.query.booksToGenres.findMany({});
 
       // Fetch all related entities in separate queries
       const authorsData = await ctx.db.query.authors.findMany({});
       const topicsData = await ctx.db.query.topics.findMany({});
       const tagsData = await ctx.db.query.tags.findMany({});
       const typesData = await ctx.db.query.types.findMany({});
-      const genresData = await ctx.db.query.genres.findMany({});
 
       // Map through each quote and enrich with related data
       const quotesWithAuthors = quotesWithBooks.map((quote) => {
@@ -479,21 +466,13 @@ export const quoteRouter = createTRPCRouter({
           .filter((type) => quoteTypesIds.includes(type.id))
           .map((type) => type.id);
 
-        const quoteGenresIds = booksToGenresData
-          .filter((qta) => qta.bookId === quote.bookId)
-          .map((qta) => qta.genreId);
-        const quoteGenres = genresData
-          .filter((genre) => quoteGenresIds.includes(genre.id))
-          .map((genre) => genre.id);
-
         return {
           ...quote,
           quotedAuthor: quotedAuthorName,
           quoteAuthors: quoteAuthors,
-          quoteTopics: quoteTopics,
-          quoteTags: quoteTags,
-          quoteTypes: quoteTypes,
-          quoteGenres: quoteGenres,
+          quoteTopics: quoteTopics.map(String),
+          quoteTags: quoteTags.map(String),
+          quoteTypes: quoteTypes.map(String),
         };
       });
 
