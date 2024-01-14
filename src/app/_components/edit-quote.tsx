@@ -95,10 +95,10 @@ export default function EditQuote({ quoteId }: EditQuoteProps) {
   const [selectedAuthorIds, setSelectedAuthorIds] = useState<number[]>(
     quoteData?.[0]?.quoteAuthors.map(Number) ?? [],
   );
-    const [isAuthorPopoverOpen, setIsAuthorPopoverOpen] = useState(false);
-    const [selectedTopicIds, setSelectedTopicIds] = useState<number[]>(
-      quoteData?.[0]?.quoteTopics.map(Number) ?? [],
-    );
+  const [isAuthorPopoverOpen, setIsAuthorPopoverOpen] = useState(false);
+  const [selectedTopicIds, setSelectedTopicIds] = useState<number[]>(
+    quoteData?.[0]?.quoteTopics.map(Number) ?? [],
+  );
   const [isTopicPopoverOpen, setIsTopicPopoverOpen] = useState(false);
   const [selectedTagIds, setSelectedTagIds] = useState<number[]>(
     quoteData?.[0]?.quoteTags.map(Number) ?? [],
@@ -236,15 +236,21 @@ export default function EditQuote({ quoteId }: EditQuoteProps) {
   });
 
   // Handle form submission
-  const onSubmit = (values: z.infer<typeof quoteSchema>) => {
-    console.log(values);
+  const onSubmit = async (values: z.infer<typeof quoteSchema>) => {
     try {
-      updateQuote.mutate({
-        ...values,
+      await updateQuote.mutateAsync({
         id,
+        ...values,
+        text: String(values.text),
+        bookId: Number(values.bookId),
+        context: String(values.context),
+        pageNumber: String(values.pageNumber),
+        quotedBy: Number(values.quotedBy),
+        isImportant: Boolean(values.isImportant),
+        isPrivate: Boolean(values.isPrivate),
       });
     } catch (error) {
-      console.log(error);
+      console.error(error);
     }
   };
 

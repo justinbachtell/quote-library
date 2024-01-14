@@ -54,96 +54,100 @@ export const quoteRouter = createTRPCRouter({
     .mutation(async ({ ctx, input }) => {
       // Use a database transaction to ensure data consistency
       return ctx.db.transaction(async (tx) => {
-        // Check if the user is logged in
-        if (!ctx.session?.user.id) {
-          throw new Error("You must be logged in to create a quote.");
-        }
+        try {
+          // Check if the user is logged in
+          if (!ctx.session?.user.id) {
+            throw new Error("You must be logged in to create a quote.");
+          }
 
-        // Insert the quote into the database
-        const quoteInsertion = await tx
-          .insert(quotes)
-          .values({
-            userId: ctx.session.user.id,
-            text: input.text,
-            bookId: input.bookId,
-            context: input.context,
-            pageNumber: input.pageNumber,
-            quotedBy: input.quotedBy,
-            isImportant: input.isImportant,
-            isPrivate: input.isPrivate,
-          })
-          .execute();
+          // Insert the quote into the database
+          const quoteInsertion = await tx
+            .insert(quotes)
+            .values({
+              userId: ctx.session.user.id,
+              text: input.text,
+              bookId: input.bookId,
+              context: input.context,
+              pageNumber: input.pageNumber,
+              quotedBy: input.quotedBy,
+              isImportant: input.isImportant,
+              isPrivate: input.isPrivate,
+            })
+            .execute();
 
-        const quoteId = Number(quoteInsertion.insertId);
-        if (isNaN(quoteId)) {
-          throw new Error("Failed to insert the quote");
-        }
+          const quoteId = Number(quoteInsertion.insertId);
+          if (isNaN(quoteId)) {
+            throw new Error("Failed to insert the quote");
+          }
 
-        // Automatically associate authors with the quote based on the bookId
-        if (input.bookId) {
-          const authorsForBook = await tx
-            .select({ authorId: booksToAuthors.authorId })
-            .from(booksToAuthors)
-            .where(eq(booksToAuthors.bookId, input.bookId));
+          // Automatically associate authors with the quote based on the bookId
+          if (input.bookId) {
+            const authorsForBook = await tx
+              .select({ authorId: booksToAuthors.authorId })
+              .from(booksToAuthors)
+              .where(eq(booksToAuthors.bookId, input.bookId));
 
-          if (authorsForBook.length > 0 && authorsForBook[0] !== undefined) {
-            for (const author of authorsForBook) {
+            if (authorsForBook.length > 0 && authorsForBook[0] !== undefined) {
+              for (const author of authorsForBook) {
+                await tx
+                  .insert(quotesToAuthors)
+                  .values({
+                    quoteId: quoteId,
+                    authorId: author.authorId,
+                  })
+                  .execute();
+              }
+            }
+          }
+
+          // Insert associations with topics
+          if (input.topicIds) {
+            for (const topicId of input.topicIds) {
               await tx
-                .insert(quotesToAuthors)
+                .insert(quotesToTopics)
                 .values({
                   quoteId: quoteId,
-                  authorId: author.authorId,
+                  topicId: topicId,
                 })
                 .execute();
             }
           }
-        }
 
-        // Insert associations with topics
-        if (input.topicIds) {
-          for (const topicId of input.topicIds) {
-            await tx
-              .insert(quotesToTopics)
-              .values({
-                quoteId: quoteId,
-                topicId: topicId,
-              })
-              .execute();
+          // Insert associations with tags
+          if (input.tagIds) {
+            for (const tagId of input.tagIds) {
+              await tx
+                .insert(quotesToTags)
+                .values({
+                  quoteId: quoteId,
+                  tagId: tagId,
+                })
+                .execute();
+            }
           }
-        }
 
-        // Insert associations with tags
-        if (input.tagIds) {
-          for (const tagId of input.tagIds) {
-            await tx
-              .insert(quotesToTags)
-              .values({
-                quoteId: quoteId,
-                tagId: tagId,
-              })
-              .execute();
+          // Insert associations with types
+          if (input.typeIds) {
+            for (const typeId of input.typeIds) {
+              await tx
+                .insert(quotesToTypes)
+                .values({
+                  quoteId: quoteId,
+                  typeId: typeId,
+                })
+                .execute();
+            }
           }
-        }
 
-        // Insert associations with types
-        if (input.typeIds) {
-          for (const typeId of input.typeIds) {
-            await tx
-              .insert(quotesToTypes)
-              .values({
-                quoteId: quoteId,
-                typeId: typeId,
-              })
-              .execute();
-          }
+          return quoteId;
+        } catch (error) {
+          console.log(error);
+          throw new Error("Failed to create the quote");
         }
-
-        return quoteId;
       });
     }),
 
   // Define a "update" procedure for updating a quote (mutation)
-  // Define an "update" procedure for updating a quote (mutation)
   update: protectedProcedure
     .input(
       z.object({
@@ -162,76 +166,81 @@ export const quoteRouter = createTRPCRouter({
     )
     .mutation(async ({ ctx, input }) => {
       return ctx.db.transaction(async (tx) => {
-        // Update the quote in the database
-        await tx
-          .update(quotes)
-          .set({
-            text: input.text,
-            bookId: input.bookId,
-            context: input.context,
-            pageNumber: input.pageNumber,
-            quotedBy: input.quotedBy,
-            isImportant: input.isImportant,
-            isPrivate: input.isPrivate,
-          })
-          .where(eq(quotes.id, input.id))
-          .execute();
-
-        // Update topics
-        if (input.topicIds) {
+        try {
+          // Update the quote in the database
           await tx
-            .delete(quotesToTopics)
-            .where(eq(quotesToTopics.quoteId, input.id))
+            .update(quotes)
+            .set({
+              text: input.text,
+              bookId: input.bookId,
+              context: input.context,
+              pageNumber: input.pageNumber,
+              quotedBy: input.quotedBy,
+              isImportant: input.isImportant,
+              isPrivate: input.isPrivate,
+            })
+            .where(eq(quotes.id, input.id))
             .execute();
 
-          for (const topicId of input.topicIds) {
+          // Update topics
+          if (input.topicIds) {
             await tx
-              .insert(quotesToTopics)
-              .values({
-                quoteId: input.id,
-                topicId: topicId,
-              })
+              .delete(quotesToTopics)
+              .where(eq(quotesToTopics.quoteId, input.id))
               .execute();
+
+            for (const topicId of input.topicIds) {
+              await tx
+                .insert(quotesToTopics)
+                .values({
+                  quoteId: input.id,
+                  topicId: topicId,
+                })
+                .execute();
+            }
           }
-        }
 
-        // Update tags
-        if (input.tagIds) {
-          await tx
-            .delete(quotesToTags)
-            .where(eq(quotesToTags.quoteId, input.id))
-            .execute();
-
-          for (const tagId of input.tagIds) {
+          // Update tags
+          if (input.tagIds) {
             await tx
-              .insert(quotesToTags)
-              .values({
-                quoteId: input.id,
-                tagId: tagId,
-              })
+              .delete(quotesToTags)
+              .where(eq(quotesToTags.quoteId, input.id))
               .execute();
+
+            for (const tagId of input.tagIds) {
+              await tx
+                .insert(quotesToTags)
+                .values({
+                  quoteId: input.id,
+                  tagId: tagId,
+                })
+                .execute();
+            }
           }
-        }
 
-        // Update types
-        if (input.typeIds) {
-          await tx
-            .delete(quotesToTypes)
-            .where(eq(quotesToTypes.quoteId, input.id))
-            .execute();
-
-          for (const typeId of input.typeIds) {
+          // Update types
+          if (input.typeIds) {
             await tx
-              .insert(quotesToTypes)
-              .values({
-                quoteId: input.id,
-                typeId: typeId,
-              })
+              .delete(quotesToTypes)
+              .where(eq(quotesToTypes.quoteId, input.id))
               .execute();
-          }
-        }
 
-        return `Quote with ID ${input.id} was successfully updated.`;
+            for (const typeId of input.typeIds) {
+              await tx
+                .insert(quotesToTypes)
+                .values({
+                  quoteId: input.id,
+                  typeId: typeId,
+                })
+                .execute();
+            }
+          }
+
+          return `Quote with ID ${input.id} was successfully updated.`;
+        } catch (error) {
+          console.error(error);
+          throw error;
+        }
       });
     }),
 
@@ -244,36 +253,41 @@ export const quoteRouter = createTRPCRouter({
           throw new Error("You must be logged in to delete a quote.");
         }
 
-        // Delete associations in related tables first to maintain referential integrity
-        await tx
-          .delete(quotesToAuthors)
-          .where(eq(quotesToAuthors.quoteId, input))
-          .execute();
-        await tx
-          .delete(quotesToTopics)
-          .where(eq(quotesToTopics.quoteId, input))
-          .execute();
-        await tx
-          .delete(quotesToTags)
-          .where(eq(quotesToTags.quoteId, input))
-          .execute();
-        await tx
-          .delete(quotesToTypes)
-          .where(eq(quotesToTypes.quoteId, input))
-          .execute();
+        try {
+          // Delete associations in related tables first to maintain referential integrity
+          await tx
+            .delete(quotesToAuthors)
+            .where(eq(quotesToAuthors.quoteId, input))
+            .execute();
+          await tx
+            .delete(quotesToTopics)
+            .where(eq(quotesToTopics.quoteId, input))
+            .execute();
+          await tx
+            .delete(quotesToTags)
+            .where(eq(quotesToTags.quoteId, input))
+            .execute();
+          await tx
+            .delete(quotesToTypes)
+            .where(eq(quotesToTypes.quoteId, input))
+            .execute();
 
-        // Now delete the quote itself
-        const deletion = await tx
-          .delete(quotes)
-          .where(eq(quotes.id, input))
-          .execute();
+          // Now delete the quote itself
+          const deletion = await tx
+            .delete(quotes)
+            .where(eq(quotes.id, input))
+            .execute();
 
-        // Check if the deletion was successful by ensuring deletion is not null
-        if (!deletion) {
-          throw new Error(`Failed to delete the quote with ID ${input}`);
+          // Check if the deletion was successful by ensuring deletion is not null
+          if (!deletion) {
+            throw new Error(`Failed to delete the quote with ID ${input}`);
+          }
+
+          return `Quote with ID ${input} was successfully deleted.`;
+        } catch (error) {
+          console.log(error);
+          throw new Error("Failed to delete the quote");
         }
-
-        return `Quote with ID ${input} was successfully deleted.`;
       });
     }),
 
