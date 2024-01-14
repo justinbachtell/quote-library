@@ -37,8 +37,8 @@ export default async function RootLayout({
   const authUser =
     session?.user.email === env.ADMIN_EMAIL
       ? true
-      : env.NODE_ENV === "development"
-        ? true
+      /* : env.NODE_ENV === "development"
+        ? true */
         : false;
 
   return (

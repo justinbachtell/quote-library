@@ -70,8 +70,8 @@ export default async function QuotePage({
 
   return (
     <div className="container my-8 flex flex-col">
-      {(sessionUserEmail === env.ADMIN_EMAIL ||
-        env.NODE_ENV === "development") &&
+      {sessionUserEmail === env.ADMIN_EMAIL /* ||
+        env.NODE_ENV === "development" */ &&
         quote[0]?.id && (
           <div className="mb-8 flex justify-center">
             <EditQuote quoteId={quote[0].id} />
