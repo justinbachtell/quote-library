@@ -43,10 +43,10 @@ export const authOptions: NextAuthOptions = {
   },
   adapter: DrizzleAdapter(db, mysqlTable) as unknown as Adapter,
   providers: [
-    /* DiscordProvider({
+    DiscordProvider({
       clientId: env.DISCORD_CLIENT_ID,
       clientSecret: env.DISCORD_CLIENT_SECRET,
-    }), */
+    }),
     GitHubProvider({
       clientId: env.GITHUB_CLIENT_ID,
       clientSecret: env.GITHUB_CLIENT_SECRET,

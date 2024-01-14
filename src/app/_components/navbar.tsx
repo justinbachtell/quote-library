@@ -281,7 +281,7 @@ export default function Navbar({ authenticated, user }: NavbarProps) {
               </NavigationMenuLink>
             </Link>
           </NavigationMenuItem>
-          <NavigationMenuItem>
+          {/* <NavigationMenuItem>
             <NavigationMenuTrigger>Categories</NavigationMenuTrigger>
             <NavigationMenuContent>
               <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px] lg:grid-cols-3">
@@ -302,7 +302,7 @@ export default function Navbar({ authenticated, user }: NavbarProps) {
                 ))}
               </ul>
             </NavigationMenuContent>
-          </NavigationMenuItem>
+          </NavigationMenuItem> */}
           <NavigationMenuItem>
             <Link href="https://justinbachtell.com" legacyBehavior passHref>
               <NavigationMenuLink
