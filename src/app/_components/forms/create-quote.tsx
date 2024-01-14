@@ -50,10 +50,10 @@ export function CreateQuote() {
   const router = useRouter();
 
   // State variables for form inputs and selections
-  const [text, setText] = useState(undefined);
+  const [text, setText] = useState("");
   const [bookId, setBookId] = useState<number>(0);
-  const [context, setContext] = useState(undefined);
-  const [pageNumber, setPageNumber] = useState(undefined);
+  const [context, setContext] = useState("");
+  const [pageNumber, setPageNumber] = useState("");
   const [quotedBy, setQuotedBy] = useState<number>(0);
   const [isImportant, setIsImportant] = useState(false);
   const [isPrivate, setIsPrivate] = useState(false);
@@ -74,10 +74,10 @@ export function CreateQuote() {
 
   // Function to reset form and state
   const resetFormAndState = () => {
-    setText(undefined);
+    setText("");
     setBookId(0);
-    setContext(undefined);
-    setPageNumber(undefined);
+    setContext("");
+    setPageNumber("");
     setQuotedBy(0);
     setIsImportant(false);
     setIsPrivate(false);
@@ -130,8 +130,8 @@ export function CreateQuote() {
   });
 
   const resetPartial = () => {
-    setText(undefined);
-    setPageNumber(undefined);
+    setText("");
+    setPageNumber("");
     setQuotedBy(0);
     setIsImportant(false);
     setSelectedTopicIds([]);
@@ -139,8 +139,8 @@ export function CreateQuote() {
     setSelectedTypeIds([]);
     setResetKey((prev) => prev + 1);
     form.reset({
-      text: undefined,
-      pageNumber: undefined,
+      text: "",
+      pageNumber: "",
       quotedBy: 0,
       isImportant: false,
       topicIds: [],
@@ -215,10 +215,10 @@ export function CreateQuote() {
   const form = useForm<z.infer<typeof quoteSchema>>({
     resolver: zodResolver(quoteSchema),
     defaultValues: {
-      text: undefined,
+      text: "",
       bookId: 0,
-      context: undefined,
-      pageNumber: undefined,
+      context: "",
+      pageNumber: "",
       quotedBy: undefined,
       isImportant: false,
       isPrivate: false,
