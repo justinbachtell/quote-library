@@ -293,7 +293,9 @@ export const quoteRouter = createTRPCRouter({
 
   // Define a "getAll" procedure for fetching all quotes (query)
   getAll: publicProcedure.query(async ({ ctx }) => {
-    return ctx.db.query.quotes.findMany({});
+    return ctx.db.query.quotes.findMany({
+      orderBy: (quotes, { asc }) => [asc(quotes.id)],
+    });
   }),
 
   // Define a "getRandom" procedure for fetching a random quote (query)
@@ -402,6 +404,7 @@ export const quoteRouter = createTRPCRouter({
       return quotesWithAuthors;
     },
   ),
+  // Define a "getQuoteWithBookAndAuthorsById" procedure for fetching a quote with book and author details by ID (query)
   getQuoteWithBookAndAuthorsById: publicProcedure
     .input(z.number())
     .query(async ({ ctx, input }): Promise<QuoteWithBookAndAuthors[]> => {
@@ -515,6 +518,7 @@ export const quoteRouter = createTRPCRouter({
     .query(async ({ ctx, input }) => {
       return ctx.db.query.topics.findMany({
         where: (topics, { eq }) => eq(topics.name, input),
+        orderBy: (topics, { asc }) => [asc(topics.name)],
       });
     }),
 
@@ -531,6 +535,7 @@ export const quoteRouter = createTRPCRouter({
     .query(async ({ ctx, input }) => {
       return ctx.db.query.tags.findMany({
         where: (tags, { eq }) => eq(tags.name, input),
+        orderBy: (tags, { asc }) => [asc(tags.name)],
       });
     }),
 
@@ -547,6 +552,7 @@ export const quoteRouter = createTRPCRouter({
     .query(async ({ ctx, input }) => {
       return ctx.db.query.types.findMany({
         where: (types, { eq }) => eq(types.name, input),
+        orderBy: (types, { asc }) => [asc(types.name)],
       });
     }),
 });

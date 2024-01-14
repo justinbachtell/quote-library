@@ -115,7 +115,21 @@ export function CreateQuote() {
     },
   });
 
-  const submitAndResetPartial = () => {
+  // Mutation for creating a quote and adding another
+  const createQuoteAndAddAnother = api.quote.create.useMutation({
+    onSuccess: () => {
+      router.refresh();
+      resetPartial();
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: error.message,
+      });
+    },
+  });
+
+  const resetPartial = () => {
     setText(undefined);
     setPageNumber(undefined);
     setQuotedBy(0);
@@ -203,8 +217,8 @@ export function CreateQuote() {
     defaultValues: {
       text: "",
       bookId: 0,
-      context: undefined,
-      pageNumber: undefined,
+      context: "",
+      pageNumber: "",
       quotedBy: undefined,
       isImportant: false,
       isPrivate: false,
@@ -224,6 +238,18 @@ export function CreateQuote() {
     };
 
     createQuote.mutate(mutationValues);
+  };
+
+  // Function to handle form submission and add another
+  const submitAndResetPartial = (values: z.infer<typeof quoteSchema>) => {
+    const mutationValues = {
+      ...values,
+      topicIds: selectedTopicIds,
+      tagIds: selectedTagIds,
+      typeIds: selectedTypeIds,
+    };
+
+    createQuoteAndAddAnother.mutate(mutationValues);
   };
 
   // Function to toggle selection of items in the popover
@@ -293,6 +319,7 @@ export function CreateQuote() {
         <div className="flex w-full flex-col gap-6 md:flex-row md:gap-4">
           {/* Quote Page Number Field */}
           <FormField
+            // TODO: DOES NOT RESET ON SUBMIT
             control={form.control}
             name="pageNumber"
             render={({ field }) => (

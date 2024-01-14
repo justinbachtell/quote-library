@@ -79,7 +79,9 @@ export const publisherRouter = createTRPCRouter({
 
   // Define a "getAll" procedure for fetching all publishers (query)
   getAll: publicProcedure.query(({ ctx }) => {
-    return ctx.db.query.publishers.findMany();
+    return ctx.db.query.publishers.findMany({
+      orderBy: (publishers, { asc }) => [asc(publishers.name)],
+    });
   }),
 
   // Define a "getRandom" procedure for fetching a random publisher (query)

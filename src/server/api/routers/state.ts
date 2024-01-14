@@ -44,7 +44,9 @@ export const stateRouter = createTRPCRouter({
 
   // Define a "getAll" procedure for fetching all states (query)
   getAll: publicProcedure.query(({ ctx }) => {
-    return ctx.db.query.states.findMany();
+    return ctx.db.query.states.findMany({
+      orderBy: (states, { asc }) => [asc(states.name)],
+    });
   }),
 
   // Define a "getRandom" procedure for fetching a random state (query)

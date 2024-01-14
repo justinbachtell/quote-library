@@ -38,7 +38,9 @@ export const topicRouter = createTRPCRouter({
 
   // Define a "getAll" procedure for fetching all topics (query)
   getAll: publicProcedure.query(({ ctx }) => {
-    return ctx.db.query.topics.findMany();
+    return ctx.db.query.topics.findMany({
+      orderBy: (topics, { asc }) => [asc(topics.name)],
+    });
   }),
 
   // Define a "getRandom" procedure for fetching a random topic (query)
