@@ -39,7 +39,9 @@ export const genreRouter = createTRPCRouter({
 
   // Define a "getAll" procedure for fetching all genres (query)
   getAll: publicProcedure.query(({ ctx }) => {
-    return ctx.db.query.genres.findMany();
+    return ctx.db.query.genres.findMany({
+      orderBy: (genres, { asc }) => [asc(genres.name)],
+    });
   }),
 
   // Define a "getRandom" procedure for fetching a random genre (query)

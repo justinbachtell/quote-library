@@ -39,7 +39,9 @@ export const countryRouter = createTRPCRouter({
 
   // Define a "getAll" procedure for fetching all countries (query)
   getAll: publicProcedure.query(({ ctx }) => {
-    return ctx.db.query.countries.findMany();
+    return ctx.db.query.countries.findMany({
+      orderBy: (countries, { asc }) => [asc(countries.name)],
+    });
   }),
 
   // Define a "getRandom" procedure for fetching a random country (query)

@@ -38,7 +38,9 @@ export const tagRouter = createTRPCRouter({
 
   // Define a "getAll" procedure for fetching all tags (query)
   getAll: publicProcedure.query(({ ctx }) => {
-    return ctx.db.query.tags.findMany();
+    return ctx.db.query.tags.findMany({
+      orderBy: (tags, { asc }) => [asc(tags.name)],
+    });
   }),
 
   // Define a "getRandom" procedure for fetching a random tag (query)

@@ -44,7 +44,12 @@ export const authorRouter = createTRPCRouter({
 
   // Define a "getAll" procedure for fetching all authors (query)
   getAll: publicProcedure.query(({ ctx }) => {
-    return ctx.db.query.authors.findMany();
+    return ctx.db.query.authors.findMany({
+      orderBy: (authors, { asc }) => [
+        asc(authors.firstName),
+        asc(authors.lastName),
+      ],
+    });
   }),
 
   // Define a "getRandom" procedure for fetching a random author (query)

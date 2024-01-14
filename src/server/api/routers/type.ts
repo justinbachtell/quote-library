@@ -38,7 +38,9 @@ export const typeRouter = createTRPCRouter({
 
   // Define a "getAll" procedure for fetching all types (query)
   getAll: publicProcedure.query(({ ctx }) => {
-    return ctx.db.query.types.findMany();
+    return ctx.db.query.types.findMany({
+      orderBy: (types, { asc }) => [asc(types.name)],
+    });
   }),
 
   // Define a "getRandom" procedure for fetching a random type (query)
