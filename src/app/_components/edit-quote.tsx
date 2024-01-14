@@ -237,10 +237,15 @@ export default function EditQuote({ quoteId }: EditQuoteProps) {
 
   // Handle form submission
   const onSubmit = (values: z.infer<typeof quoteSchema>) => {
-    updateQuote.mutate({
-      ...values,
-      id,
-    });
+    console.log(values);
+    try {
+      updateQuote.mutate({
+        ...values,
+        id,
+      });
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   // Function to toggle selection of items in the popover
