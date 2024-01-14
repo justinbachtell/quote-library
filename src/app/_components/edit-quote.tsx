@@ -70,7 +70,6 @@ export default function EditQuote({ quoteId }: EditQuoteProps) {
 
   // Fetch the data
   const getBooks = api.book.getAll.useQuery();
-  const getAuthors = api.author.getAll.useQuery();
   const getTopics = api.topic.getAll.useQuery();
   const getTags = api.tag.getAll.useQuery();
   const getTypes = api.type.getAll.useQuery();
@@ -92,10 +91,6 @@ export default function EditQuote({ quoteId }: EditQuoteProps) {
   const [isPrivate, setIsPrivate] = useState(
     quoteData?.[0]?.isPrivate ?? false,
   );
-  const [selectedAuthorIds, setSelectedAuthorIds] = useState<number[]>(
-    quoteData?.[0]?.quoteAuthors.map(Number) ?? [],
-  );
-  const [isAuthorPopoverOpen, setIsAuthorPopoverOpen] = useState(false);
   const [selectedTopicIds, setSelectedTopicIds] = useState<number[]>(
     quoteData?.[0]?.quoteTopics.map(Number) ?? [],
   );
@@ -144,12 +139,6 @@ export default function EditQuote({ quoteId }: EditQuoteProps) {
       .optional(),
     isImportant: z.boolean(),
     isPrivate: z.boolean(),
-    authorIds: z
-      .array(z.number())
-      .max(100000, {
-        message: "Author ID must be less than 100,000 characters",
-      })
-      .optional(),
     topicIds: z
       .array(z.number())
       .max(100000, {
@@ -228,7 +217,6 @@ export default function EditQuote({ quoteId }: EditQuoteProps) {
       quotedBy: quoteData?.[0]?.quotedBy ?? 0,
       isImportant: quoteData?.[0]?.isImportant ?? false,
       isPrivate: quoteData?.[0]?.isPrivate ?? false,
-      authorIds: quoteData?.[0]?.quoteAuthors.map(Number) ?? [],
       topicIds: quoteData?.[0]?.quoteTopics.map(Number) ?? [],
       tagIds: quoteData?.[0]?.quoteTags.map(Number) ?? [],
       typeIds: quoteData?.[0]?.quoteTypes.map(Number) ?? [],
@@ -248,6 +236,9 @@ export default function EditQuote({ quoteId }: EditQuoteProps) {
         quotedBy: Number(values.quotedBy),
         isImportant: Boolean(values.isImportant),
         isPrivate: Boolean(values.isPrivate),
+        topicIds: values.topicIds ? values.topicIds.map(Number) : [],
+        tagIds: values.tagIds ? values.tagIds.map(Number) : [],
+        typeIds: values.typeIds ? values.typeIds.map(Number) : [],
       });
     } catch (error) {
       console.error(error);
@@ -255,12 +246,7 @@ export default function EditQuote({ quoteId }: EditQuoteProps) {
   };
 
   // Function to toggle selection of items in the popover
-  type ArrayFieldIds =
-    | "authorIds"
-    | "topicIds"
-    | "tagIds"
-    | "typeIds"
-    | "genreIds";
+  type ArrayFieldIds = "topicIds" | "tagIds" | "typeIds" | "genreIds";
   const toggleSelection = (
     id: number,
     selectedIds: number[],
@@ -284,7 +270,6 @@ export default function EditQuote({ quoteId }: EditQuoteProps) {
         quotedBy: quoteData[0].quotedBy ?? 0,
         isImportant: quoteData[0].isImportant ?? false,
         isPrivate: quoteData[0].isPrivate ?? false,
-        authorIds: quoteData[0].quoteAuthors.map((a) => Number(a)),
         topicIds: quoteData[0].quoteTopics.map((t) => Number(t)),
         tagIds: quoteData[0].quoteTags.map((t) => Number(t)),
         typeIds: quoteData[0].quoteTypes.map((t) => Number(t)),
@@ -302,7 +287,6 @@ export default function EditQuote({ quoteId }: EditQuoteProps) {
         quotedBy = quoteData[0].quotedBy,
         isImportant = quoteData[0].isImportant,
         isPrivate = quoteData[0].isPrivate,
-        quoteAuthors = quoteData[0].quoteAuthors,
         quoteTopics = quoteData[0].quoteTopics,
         quoteTags = quoteData[0].quoteTags,
         quoteTypes = quoteData[0].quoteTypes,
@@ -322,7 +306,6 @@ export default function EditQuote({ quoteId }: EditQuoteProps) {
       setQuotedBy(quotedBy ?? 0);
 
       // For array values, ensure they are not null before setting them
-      setSelectedAuthorIds(quoteAuthors?.map((a) => Number(a)) ?? []);
       setSelectedTopicIds(quoteTopics?.map((t) => Number(t)) ?? []);
       setSelectedTagIds(quoteTags?.map((t) => Number(t)) ?? []);
       setSelectedTypeIds(quoteTypes?.map((t) => Number(t)) ?? []);
@@ -367,7 +350,7 @@ export default function EditQuote({ quoteId }: EditQuoteProps) {
       {editMode && (
         <Form {...form}>
           <form
-            onSubmit={form.handleSubmit(onSubmit)}
+            /* onSubmit={form.handleSubmit(onSubmit)} */
             className="my-8 flex flex-col gap-6"
           >
             <div className="flex w-full flex-col gap-6">
@@ -755,6 +738,7 @@ export default function EditQuote({ quoteId }: EditQuoteProps) {
             </div>
             <Separator className="my-4 bg-stone-200" />
             <Button
+              onClick={form.handleSubmit(onSubmit)}
               type="submit"
               className="border-1 rounded border bg-stone-800 text-white hover:bg-stone-50 hover:text-stone-800"
             >
