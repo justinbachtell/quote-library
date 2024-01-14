@@ -673,7 +673,7 @@ export function CreateQuote() {
           Submit
         </Button>
         <Button
-          onClick={submitAndResetPartial}
+          onClick={form.handleSubmit(submitAndResetPartial)}
           className="border-1 rounded border bg-blue-500 text-white hover:bg-blue-600"
         >
           Add Another Quote
