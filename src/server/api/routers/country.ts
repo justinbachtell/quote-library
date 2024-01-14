@@ -21,14 +21,19 @@ export const countryRouter = createTRPCRouter({
     .mutation(async ({ ctx, input }) => {
       // Use a database transaction to ensure data consistency
       return ctx.db.transaction(async (tx) => {
-        // Insert the country into the database
-        const countryInsertion = await tx.insert(countries).values({
-          name: input.name,
-        });
+        try {
+          // Insert the country into the database
+          const countryInsertion = await tx.insert(countries).values({
+            name: input.name,
+          });
 
-        const countryId = Number(countryInsertion.insertId);
+          const countryId = Number(countryInsertion.insertId);
 
-        return countryId;
+          return countryId;
+        } catch (error) {
+          console.error(error);
+          throw error;
+        }
       });
     }),
 
