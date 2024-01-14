@@ -215,10 +215,10 @@ export function CreateQuote() {
   const form = useForm<z.infer<typeof quoteSchema>>({
     resolver: zodResolver(quoteSchema),
     defaultValues: {
-      text: "",
+      text: undefined,
       bookId: 0,
-      context: "",
-      pageNumber: "",
+      context: undefined,
+      pageNumber: undefined,
       quotedBy: undefined,
       isImportant: false,
       isPrivate: false,
