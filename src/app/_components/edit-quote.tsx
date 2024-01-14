@@ -70,6 +70,7 @@ export default function EditQuote({ quoteId }: EditQuoteProps) {
 
   // Fetch the data
   const getBooks = api.book.getAll.useQuery();
+  const getAuthors = api.author.getAll.useQuery();
   const getTopics = api.topic.getAll.useQuery();
   const getTags = api.tag.getAll.useQuery();
   const getTypes = api.type.getAll.useQuery();
