@@ -141,7 +141,7 @@ export const quoteRouter = createTRPCRouter({
 
           return quoteId;
         } catch (error) {
-          console.log(error);
+          console.error(error);
           throw new Error("Failed to create the quote");
         }
       });
@@ -285,7 +285,7 @@ export const quoteRouter = createTRPCRouter({
 
           return `Quote with ID ${input} was successfully deleted.`;
         } catch (error) {
-          console.log(error);
+          console.error(error);
           throw new Error("Failed to delete the quote");
         }
       });
