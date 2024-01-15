@@ -134,18 +134,12 @@ export function CreateQuote() {
     setPageNumber("");
     setQuotedBy(0);
     setIsImportant(false);
-    setSelectedTopicIds([]);
-    setSelectedTagIds([]);
-    setSelectedTypeIds([]);
     setResetKey((prev) => prev + 1);
     form.reset({
       text: "",
       pageNumber: "",
       quotedBy: 0,
       isImportant: false,
-      topicIds: [],
-      tagIds: [],
-      typeIds: [],
     });
     setResetKey((prev) => prev + 1);
   };
