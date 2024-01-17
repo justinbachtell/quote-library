@@ -110,7 +110,7 @@ export function DataTable<TData, TValue>({
                   data-state={row.getIsSelected() && "selected"}
                   className={
                     row.getValue("isImportant")
-                      ? "bg-yellow-50 bg-opacity-10"
+                      ? "bg-yellow-100 bg-opacity-10"
                       : undefined
                   }
                 >
