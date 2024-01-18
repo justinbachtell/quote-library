@@ -132,6 +132,7 @@ export function CreateQuote() {
     setText("");
     setPageNumber("");
     setQuotedBy(0);
+    setBookId(bookId);
     setIsImportant(false);
     setResetKey((prev) => prev + 1);
     form.reset({
