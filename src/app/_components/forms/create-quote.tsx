@@ -168,7 +168,8 @@ export function CreateQuote() {
       .string()
       .max(20, { message: "Page Number must be less than 20 characters" })
       .regex(alphanumericRegex, {
-        message: "Page Number must only contain letters, numbers, and hyphens",
+        message:
+          "Page Number must only contain letters, numbers, spaces, periods, and hyphens",
       })
       .optional(),
     quotedBy: z
