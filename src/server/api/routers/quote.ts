@@ -24,6 +24,7 @@ type QuoteWithBookAndAuthors = {
   pageNumber: string | null | undefined;
   context: string | null | undefined;
   quotedBy: number | null | undefined;
+  quotedAuthor: string | undefined;
   isImportant: boolean | null;
   isPrivate: boolean | null;
   bookTitle: string;
