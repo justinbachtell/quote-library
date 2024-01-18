@@ -118,7 +118,6 @@ export function CreateQuote() {
   // Mutation for creating a quote and adding another
   const createQuoteAndAddAnother = api.quote.create.useMutation({
     onSuccess: () => {
-      router.refresh();
       resetPartial();
     },
     onError: (error) => {
