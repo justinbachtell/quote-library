@@ -165,7 +165,7 @@ export function CreateQuote() {
       .optional(),
     pageNumber: z
       .string()
-      .max(10, { message: "Page Number must be less than 15 characters" })
+      .max(20, { message: "Page Number must be less than 20 characters" })
       .regex(alphanumericRegex, {
         message: "Page Number must only contain letters, numbers, and hyphens",
       })
@@ -299,6 +299,7 @@ export function CreateQuote() {
                 <FormMessage className="space-y-0 text-red-600" />
                 <FormControl>
                   <Textarea
+                    rows={1}
                     placeholder="Quote context"
                     className="rounded"
                     {...field}
