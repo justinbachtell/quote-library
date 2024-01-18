@@ -91,7 +91,13 @@ export default async function QuotePage({
               <blockquote className="px-8 pt-8 text-xl">
                 <p>"{quote[0]?.text}"</p>
                 <p className="my-4 text-right italic">
-                  - {quote[0]?.quoteAuthors.join(", ")}
+                  -{" "}
+                  {quote[0]?.quotedBy !== null ||
+                  quote[0]?.quotedBy !== "" ||
+                  quote[0]?.quotedBy !== undefined ||
+                  quote[0]?.quotedBy !== 0
+                    ? quote[0]?.quotedBy + ", quoted by "
+                    : quote[0]?.quoteAuthors.join(", ")}
                 </p>
               </blockquote>
             </div>

@@ -131,14 +131,12 @@ export function CreateQuote() {
   const resetPartial = () => {
     setText("");
     setPageNumber("");
-    setQuotedBy(0);
-    setBookId(bookId);
     setIsImportant(false);
     setResetKey((prev) => prev + 1);
     form.reset({
       text: "",
       pageNumber: "",
-      quotedBy: 0,
+      bookId: bookId,
       isImportant: false,
     });
     setResetKey((prev) => prev + 1);
@@ -301,7 +299,7 @@ export function CreateQuote() {
                 <FormMessage className="space-y-0 text-red-600" />
                 <FormControl>
                   <Textarea
-                    rows={1}
+                    rows={2}
                     placeholder="Quote context"
                     className="rounded"
                     {...field}
