@@ -32,6 +32,8 @@ export default async function QuotePage({
       pageNumber: quote.pageNumber === null ? undefined : quote.pageNumber,
       quotedBy: quote.quotedBy ?? undefined,
       isPrivate: quote.isPrivate ?? undefined,
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      quotedAuthor: quote.quotedAuthor ?? undefined,
       quoteAuthors: quote.quoteAuthors ?? undefined,
       quoteTopics: quote.quoteTopics ?? undefined,
       quoteTypes: quote.quoteTypes ?? undefined,
@@ -92,12 +94,7 @@ export default async function QuotePage({
                 <p>"{quote[0]?.text}"</p>
                 <p className="my-4 text-right italic">
                   -{" "}
-                  {quote[0]?.quotedBy !== null ||
-                  quote[0]?.quotedBy !== "" ||
-                  quote[0]?.quotedBy !== undefined ||
-                  quote[0]?.quotedBy !== 0
-                    ? quote[0]?.quotedBy + ", quoted by "
-                    : quote[0]?.quoteAuthors.join(", ")}
+                  {quote[0]?.quotedAuthor ?? quote[0]?.quoteAuthors.join(", ")}
                 </p>
               </blockquote>
             </div>
