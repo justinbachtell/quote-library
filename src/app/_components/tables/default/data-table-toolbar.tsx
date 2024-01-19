@@ -3,7 +3,7 @@
 import * as React from "react";
 import { Cross2Icon } from "@radix-ui/react-icons";
 import { type Table } from "@tanstack/react-table";
-
+import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { DataTableViewOptions } from "./data-table-view-options";
@@ -89,6 +89,21 @@ export function DataTableToolbar<TData>({
             options={useGenres()}
           />
         )}
+        {/* <div className="my-auto flex flex-row justify-center">
+          <Checkbox
+            checked={
+              table.getColumn("isImportant")?.getFilterValue() as boolean
+            }
+            onChange={(event) => {
+              const target = event.target as HTMLInputElement;
+              table.getColumn("isImportant")?.setFilterValue(target.checked);
+            }}
+            className="my-auto flex justify-center"
+          />
+          <span className="my-auto ml-2 flex text-sm font-medium">
+            Important
+          </span>
+        </div> */}
         {isFiltered && (
           <Button
             variant="ghost"

@@ -27,6 +27,8 @@ export const columns: ColumnDef<Quote>[] = [
         </div>
       );
     },
+    enableSorting: true,
+    enableHiding: false,
   },
   {
     accessorKey: "text",
