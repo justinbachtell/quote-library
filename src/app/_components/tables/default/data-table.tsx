@@ -41,10 +41,33 @@ export function DataTable<TData, TValue>({
   const [rowSelection, setRowSelection] = React.useState({});
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({});
-  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
-    [],
-  );
   const [sorting, setSorting] = React.useState<SortingState>([]);
+
+  // Load the initial filter state from localStorage
+  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
+    () => {
+      const savedFilters = localStorage.getItem("columnFilters");
+      if (savedFilters) {
+        try {
+          console.log("savedFilters", savedFilters);
+          return JSON.parse(savedFilters) as ColumnFiltersState;
+        } catch (error) {
+          console.error(
+            "Failed to parse column filters from localStorage:",
+            error,
+          );
+          return [];
+        }
+      } else {
+        return [];
+      }
+    },
+  );
+
+  // Save filter state to localStorage whenever it changes
+  React.useEffect(() => {
+    localStorage.setItem("columnFilters", JSON.stringify(columnFilters));
+  }, [columnFilters]);
 
   const table = useReactTable({
     data,
