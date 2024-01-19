@@ -38,31 +38,33 @@ export function DataTable<TData, TValue>({
   columns,
   data,
 }: DataTableProps<TData, TValue>) {
-  const [rowSelection, setRowSelection] = React.useState({});
-  const [columnVisibility, setColumnVisibility] =
-    React.useState<VisibilityState>({});
-  const [sorting, setSorting] = React.useState<SortingState>([]);
+    if (typeof window === "undefined") {
+      return null;
+    }
 
-  // Load the initial filter state from localStorage
-  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
-    () => {
-      const savedFilters = localStorage.getItem("columnFilters");
-      if (savedFilters) {
-        try {
-          console.log("savedFilters", savedFilters);
-          return JSON.parse(savedFilters) as ColumnFiltersState;
-        } catch (error) {
-          console.error(
-            "Failed to parse column filters from localStorage:",
-            error,
-          );
+    const [rowSelection, setRowSelection] = React.useState({});
+    const [columnVisibility, setColumnVisibility] =
+      React.useState<VisibilityState>({});
+    const [sorting, setSorting] = React.useState<SortingState>([]);
+
+    // Load the initial filter state from localStorage
+    const [columnFilters, setColumnFilters] =
+      React.useState<ColumnFiltersState>(() => {
+        const savedFilters = localStorage.getItem("columnFilters");
+        if (savedFilters) {
+          try {
+            return JSON.parse(savedFilters) as ColumnFiltersState;
+          } catch (error) {
+            console.error(
+              "Failed to parse column filters from localStorage:",
+              error,
+            );
+            return [];
+          }
+        } else {
           return [];
         }
-      } else {
-        return [];
-      }
-    },
-  );
+      });
 
   // Save filter state to localStorage whenever it changes
   React.useEffect(() => {
