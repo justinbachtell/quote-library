@@ -82,7 +82,7 @@ export default async function QuotePage({
         </div>
       )}
       <Suspense fallback={<h1 className="text-large">Loading...</h1>}>
-        {quote[0]?.id && !quote[0]?.isPrivate && (
+        {quote[0]?.id && (!quote[0]?.isPrivate || validUser) && (
           <div className="flex flex-col gap-8">
             <div className="flex flex-col">
               <h1 className="text-2xl font-bold">
